@@ -13,7 +13,7 @@ export const TimerInfo = ({ name, category }: TimerInfoProps) => {
   return (
     <View className="flex-1">
       <Text className={`text-xl font-bold mb-1 ${
-        isDark ? 'text-white' : 'text-slate-800'
+        isDark ? 'text-slate-50' : 'text-slate-900'
       }`}>
         {name}
       </Text>

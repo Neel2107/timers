@@ -79,19 +79,19 @@ const TimerList = () => {
       entering={FadeIn.duration(500)}
       className="flex-1 justify-center items-center px-4"
     >
-      <View className={`w-16 h-16 rounded-2xl items-center justify-center ${isDark ? 'bg-slate-800' : 'bg-slate-100'
+      <View className={`w-16 h-16 rounded-2xl items-center justify-center ${isDark ? 'bg-app-card-dark' : 'bg-app-card-light'
         }`}>
         <Feather
           name="clock"
           size={32}
-          color={isDark ? '#60a5fa' : '#3b82f6'}
+          color={isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)'}
         />
       </View>
-      <Text className={`text-lg font-semibold mt-4 ${isDark ? 'text-white' : 'text-slate-800'
+      <Text className={`text-lg font-semibold mt-4 ${isDark ? 'text-content-primary-dark' : 'text-content-primary-light'
         }`}>
         No timers yet
       </Text>
-      <Text className={`text-sm text-center mt-2 ${isDark ? 'text-slate-400' : 'text-slate-500'
+      <Text className={`text-sm text-center mt-2 ${isDark ? 'text-content-secondary-dark' : 'text-content-secondary-light'
         }`}>
         Create your first timer by tapping the + button
       </Text>
@@ -106,7 +106,10 @@ const TimerList = () => {
         renderCategory({ category, timers: categoryTimers })}
       keyExtractor={([category]) => category}
       contentContainerStyle={[
-        { flexGrow: 1 },
+        {
+          flexGrow: 1,
+          paddingBottom: 100,
+        },
         timers.length === 0 && { flex: 1 }
       ]}
       ListEmptyComponent={EmptyComponent}
@@ -114,9 +117,9 @@ const TimerList = () => {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor={isDark ? '#60a5fa' : '#3b82f6'}
-          colors={[isDark ? '#60a5fa' : '#3b82f6']}
-          progressBackgroundColor={isDark ? '#1e293b' : '#f1f5f9'}
+          tintColor={isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)'}
+          colors={[isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)']}
+          progressBackgroundColor={isDark ? '#1e293b' : '#f8fafc'}
         />
       }
       showsVerticalScrollIndicator={false}
@@ -124,6 +127,9 @@ const TimerList = () => {
       maxToRenderPerBatch={5}
       initialNumToRender={4}
       removeClippedSubviews={true}
+      snapToAlignment="start"
+      decelerationRate="fast"
+      bounces={true}
     />
   )
 }

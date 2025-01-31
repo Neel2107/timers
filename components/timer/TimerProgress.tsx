@@ -24,22 +24,22 @@ export const TimerProgress = ({
       <View className="flex-row justify-between items-center mb-4">
         <Text className={`text-lg font-medium ${
           status === 'completed'
-            ? isDark ? 'text-emerald-400' : 'text-emerald-600'
-            : isDark ? 'text-slate-300' : 'text-slate-600'
+            ? isDark ? 'text-status-success-dark' : 'text-status-success-light'
+            : isDark ? 'text-slate-300' : 'text-slate-700'
         }`}>
           {status === 'completed' ? 'Completed' : `${progressPercentage}% Complete`}
         </Text>
         <Text className={`text-lg font-semibold ${
           status === 'running'
-            ? isDark ? 'text-violet-300' : 'text-violet-600'
-            : isDark ? 'text-slate-300' : 'text-slate-600'
+            ? isDark ? 'text-brand-secondary-dark' : 'text-brand-secondary'
+            : isDark ? 'text-slate-300' : 'text-slate-700'
         }`}>
           {format(remainingTime * 1000, 'mm:ss')}
         </Text>
       </View>
 
       <View className={`h-4 rounded-full overflow-hidden ${
-        isDark ? 'bg-slate-700/50' : 'bg-slate-100'
+        isDark ? 'bg-slate-800/50' : 'bg-slate-50'
       }`}>
         <Animated.View
           className="h-full rounded-full"

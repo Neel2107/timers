@@ -13,61 +13,63 @@ interface TimerControlsProps {
 }
 
 export const TimerControls = ({
-    status,
-    onPlayPause,
-    onReset,
-    remainingTime
+  status,
+  onPlayPause,
+  onReset,
+  remainingTime
 }: TimerControlsProps) => {
-    const { isDark } = useTheme()
+  const { isDark } = useTheme()
 
-    const handlePlayPause = () => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-        onPlayPause()
-    }
+  const handlePlayPause = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+      onPlayPause()
+  }
 
-    const handleReset = () => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-        onReset()
-    }
+  const handleReset = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+      onReset()
+  }
 
-    return (
-        <View className="flex-row items-center gap-4">
-            <TouchableOpacity
-                className={`w-14 h-14 rounded-2xl items-center justify-center ${status === 'running'
-                        ? isDark ? 'bg-red-500/15 border-2 border-red-500/20'
-                            : 'bg-red-50 border-2 border-red-200'
-                        : isDark ? 'bg-emerald-500/15 border-2 border-emerald-500/20'
-                            : 'bg-emerald-50 border-2 border-emerald-200'
-                    }`}
-                activeOpacity={0.7}
-                onPress={handlePlayPause}
-                disabled={status === 'completed'}
-            >
-                <Feather
-                    name={status === 'running' ? 'pause' : 'play'}
-                    size={26}
-                    color={status === 'running'
-                        ? isDark ? '#f87171' : '#dc2626'
-                        : isDark ? '#6ee7b7' : '#059669'
-                    }
-                />
-            </TouchableOpacity>
+  return (
+    <View className="flex-row items-center gap-4">
+      <TouchableOpacity
+        className={`w-14 h-14 rounded-2xl items-center justify-center ${
+          status === 'running'
+            ? isDark ? 'bg-status-error-dark/20 border-2 border-status-error-dark/30'
+              : 'bg-status-error-light/10 border-2 border-status-error-light/20'
+            : isDark ? 'bg-status-success-dark/20 border-2 border-status-success-dark/30'
+              : 'bg-status-success-light/10 border-2 border-status-success-light/20'
+        }`}
+        activeOpacity={0.7}
+        onPress={handlePlayPause}
+        disabled={status === 'completed'}
+      >
+        <Feather
+          name={status === 'running' ? 'pause' : 'play'}
+          size={26}
+          color={status === 'running'
+            ? isDark ? '#f87171' : '#ef4444'
+            : isDark ? '#6ee7b7' : '#059669'
+          }
+        />
+      </TouchableOpacity>
 
-            <TouchableOpacity
-                className={`w-14 h-14 rounded-2xl items-center justify-center ${isDark
-                        ? 'bg-slate-700/50 border-2 border-slate-600/30'
-                        : 'bg-slate-100 border-2 border-slate-200'
-                    }`}
-                activeOpacity={0.7}
-                onPress={handleReset}
-                disabled={status === 'completed' && remainingTime === 0}
-            >
-                <Feather
-                    name="refresh-ccw"
-                    size={26}
-                    color={isDark ? '#94a3b8' : '#64748b'}
-                />
-            </TouchableOpacity>
-        </View>
-    )
+      <TouchableOpacity
+        className={`w-14 h-14 rounded-2xl items-center justify-center ${
+          isDark
+            ? 'bg-slate-800/50 border-2 border-slate-700'
+            : 'bg-slate-50 border-2 border-slate-200'
+        }`}
+        activeOpacity={0.7}
+        onPress={handleReset}
+        disabled={status === 'completed' && remainingTime === 0}
+      >
+        <Feather
+          name="refresh-ccw"
+          size={26}
+          color={isDark ? '#94a3b8' : '#64748b'}
+        />
+      </TouchableOpacity>
+    </View>
+  )
 }

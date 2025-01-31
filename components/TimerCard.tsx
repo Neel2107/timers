@@ -1,6 +1,8 @@
 import { useTheme } from '@/context/ThemeContext'
 import type { Timer } from '@/context/TimerContext'
 import { useTimers } from '@/context/TimerContext'
+import { Feather } from '@expo/vector-icons'
+import * as Haptics from 'expo-haptics'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -16,7 +18,6 @@ import Animated, {
 import { TimerControls } from './timer/TimerControls'
 import { TimerInfo } from './timer/TimerInfo'
 import { TimerProgress } from './timer/TimerProgress'
-import { TimerStatusIcon } from './timer/TimerStatusIcon'
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
@@ -82,7 +83,8 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
   const progressStyle = useAnimatedStyle(() => ({
     width: `${(1 - progress.value) * 100}%`,
     backgroundColor: progressColor.value,
-    transform: [{ translateX: 0 }],
+    borderRadius: 10,
+    height: 8,
   }))
 
   return (
@@ -93,20 +95,51 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
       style={[
         {
           shadowColor: isDark ? '#000' : '#64748b',
-          shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: isDark ? 0.5 : 0.15,
-          shadowRadius: 20,
-          elevation: 10,
-        }
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: isDark ? 0.6 : 0.15,
+          shadowRadius: 16,
+          elevation: 12,
+        },
+        animatedStyle
       ]}
-      className={`p-5 rounded-3xl border ${isDark
-          ? 'bg-slate-800/95 border-slate-700/30'
-          : 'bg-white/95 border-slate-200/30'
+      onPressIn={() => {
+        scale.value = 0.98
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      }}
+      onPressOut={() => {
+        scale.value = 1
+      }}
+      className={`p-6 rounded-3xl border ${isDark
+          ? 'bg-app-card-dark border-border-dark'
+          : 'bg-app-card-light border-border-light'
         }`}
     >
       <View className="flex-row items-start justify-between gap-6">
         <View className="flex-row items-center gap-5 flex-1">
-          <TimerStatusIcon status={timer.status} />
+          <View className={`w-16 h-16 rounded-2xl items-center justify-center ${timer.status === 'completed'
+              ? isDark ? 'bg-status-success-dark/15' : 'bg-status-success-light/15'
+              : timer.status === 'running'
+                ? isDark ? 'bg-brand-secondary-dark/15' : 'bg-brand-secondary/15'
+                : isDark ? 'bg-content-secondary-dark/15' : 'bg-content-secondary-light/15'
+            }`}>
+            <Feather
+              name={
+                timer.status === 'completed'
+                  ? 'check-circle'
+                  : timer.status === 'running'
+                    ? 'activity'
+                    : 'clock'
+              }
+              size={32}
+              color={
+                timer.status === 'completed'
+                  ? isDark ? 'rgb(110, 231, 183)' : 'rgb(5, 150, 105)'
+                  : timer.status === 'running'
+                    ? isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)'
+                    : isDark ? 'rgb(148, 163, 184)' : 'rgb(100, 116, 139)'
+              }
+            />
+          </View>
           <TimerInfo
             name={timer.name}
             category={timer.category}
