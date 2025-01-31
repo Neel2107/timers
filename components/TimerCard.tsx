@@ -31,6 +31,33 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
   const { startTimer, pauseTimer, resetTimer, updateRemainingTime } = useTimers()
   const scale = useSharedValue(1)
   const intervalRef = useRef<NodeJS.Timeout>()
+  const lastTickRef = useRef<number>(Date.now())
+
+  // Enhanced interval logic with time drift compensation
+  useEffect(() => {
+    if (timer.status === 'running' && timer.remainingTime > 0) {
+      lastTickRef.current = Date.now()
+      
+      intervalRef.current = setInterval(() => {
+        const now = Date.now()
+        const drift = now - lastTickRef.current
+        const tickCount = Math.floor(drift / 1000)
+        
+        if (tickCount >= 1) {
+          const newRemainingTime = Math.max(0, timer.remainingTime - tickCount)
+          updateRemainingTime(timer.id, newRemainingTime)
+          lastTickRef.current = now - (drift % 1000)
+        }
+      }, 1000)
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = undefined
+      }
+    }
+  }, [timer.status, timer.remainingTime, timer.id, updateRemainingTime])
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }]
@@ -109,10 +136,11 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
       onPressOut={() => {
         scale.value = 1
       }}
-      className={`p-6 rounded-3xl border ${isDark
-          ? 'bg-app-card-dark border-border-dark'
-          : 'bg-app-card-light border-border-light'
-        }`}
+      className={`p-6 rounded-2xl border ${
+        isDark
+          ? 'bg-slate-800 border-slate-700'
+          : 'bg-white border-slate-200'
+      }`}
     >
       <View className="flex-row items-start justify-between gap-6">
         <View className="flex-row items-center gap-5 flex-1">

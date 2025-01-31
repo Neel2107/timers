@@ -12,12 +12,7 @@ interface TimerControlsProps {
     remainingTime: number
 }
 
-export const TimerControls = ({
-  status,
-  onPlayPause,
-  onReset,
-  remainingTime
-}: TimerControlsProps) => {
+export const TimerControls = ({ status, onPlayPause, onReset, remainingTime }: TimerControlsProps) => {
   const { isDark } = useTheme()
 
   const handlePlayPause = () => {
@@ -31,9 +26,9 @@ export const TimerControls = ({
   }
 
   return (
-    <View className="flex-row items-center gap-4">
+    <View className="flex-row items-center gap-3">
       <TouchableOpacity
-        className={`w-14 h-14 rounded-2xl items-center justify-center ${
+        className={`w-12 h-12 rounded-xl items-center justify-center ${
           status === 'running'
             ? isDark ? 'bg-status-error-dark/20 border-2 border-status-error-dark/30'
               : 'bg-status-error-light/10 border-2 border-status-error-light/20'
@@ -46,7 +41,7 @@ export const TimerControls = ({
       >
         <Feather
           name={status === 'running' ? 'pause' : 'play'}
-          size={26}
+          size={22}
           color={status === 'running'
             ? isDark ? '#f87171' : '#ef4444'
             : isDark ? '#6ee7b7' : '#059669'
@@ -55,7 +50,7 @@ export const TimerControls = ({
       </TouchableOpacity>
 
       <TouchableOpacity
-        className={`w-14 h-14 rounded-2xl items-center justify-center ${
+        className={`w-12 h-12 rounded-xl items-center justify-center ${
           isDark
             ? 'bg-slate-800/50 border-2 border-slate-700'
             : 'bg-slate-50 border-2 border-slate-200'
@@ -66,7 +61,7 @@ export const TimerControls = ({
       >
         <Feather
           name="refresh-ccw"
-          size={26}
+          size={22}
           color={isDark ? '#94a3b8' : '#64748b'}
         />
       </TouchableOpacity>

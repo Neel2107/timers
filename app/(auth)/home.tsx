@@ -92,13 +92,13 @@ const HomeScreen = () => {
   }, [])
 
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+    <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Animated.View
         entering={FadeIn.duration(500)}
         className="px-4 pt-4 pb-6 flex-1"
       >
-        <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
+        <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
           My Timers
         </Text>
 
@@ -107,23 +107,18 @@ const HomeScreen = () => {
         {/* Floating Action Button */}
         <TouchableOpacity
           onPress={handleOpenSheet}
-          className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center ${isDark ? 'bg-indigo-500' : 'bg-indigo-500'
-            }`}
+          className={`absolute bottom-6 right-6 w-14 h-14 rounded-2xl items-center justify-center ${
+            isDark ? 'bg-indigo-500' : 'bg-indigo-500'
+          }`}
           style={{
             shadowColor: isDark ? '#6366f1' : '#4f46e5',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-            elevation: 8,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: isDark ? 0.6 : 0.15,
+            shadowRadius: 16,
+            elevation: 12,
           }}
           activeOpacity={0.8}
         >
-          <View
-            className="absolute inset-0 rounded-full"
-            style={{
-              backgroundColor: 'rgba(99, 102, 241, 0.15)',
-            }}
-          />
           <Feather name="plus" size={24} color="white" />
         </TouchableOpacity>
       </Animated.View>

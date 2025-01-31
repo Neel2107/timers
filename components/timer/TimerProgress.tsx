@@ -20,16 +20,16 @@ export const TimerProgress = ({
   const { isDark } = useTheme()
 
   return (
-    <View className="mt-7">
-      <View className="flex-row justify-between items-center mb-4">
-        <Text className={`text-lg font-medium ${
+    <View className="mt-6">
+      <View className="flex-row justify-between items-center mb-3">
+        <Text className={`text-base font-medium ${
           status === 'completed'
             ? isDark ? 'text-status-success-dark' : 'text-status-success-light'
             : isDark ? 'text-slate-300' : 'text-slate-700'
         }`}>
           {status === 'completed' ? 'Completed' : `${progressPercentage}% Complete`}
         </Text>
-        <Text className={`text-lg font-semibold ${
+        <Text className={`text-base font-semibold ${
           status === 'running'
             ? isDark ? 'text-brand-secondary-dark' : 'text-brand-secondary'
             : isDark ? 'text-slate-300' : 'text-slate-700'
@@ -38,8 +38,8 @@ export const TimerProgress = ({
         </Text>
       </View>
 
-      <View className={`h-4 rounded-full overflow-hidden ${
-        isDark ? 'bg-slate-800/50' : 'bg-slate-50'
+      <View className={`h-3 rounded-full overflow-hidden ${
+        isDark ? 'bg-slate-800/50' : 'bg-slate-100'
       }`}>
         <Animated.View
           className="h-full rounded-full"
