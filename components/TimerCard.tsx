@@ -1,14 +1,13 @@
 import { useTheme } from '@/context/ThemeContext'
 import type { Timer } from '@/context/TimerContext'
-import { Ionicons } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import React from 'react'
 import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Animated, {
-  FadeIn,
+  FadeInDown,
   FadeOut,
-  SlideInRight,
   useAnimatedStyle,
   useSharedValue,
   withSpring
@@ -17,10 +16,11 @@ import Animated, {
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
 interface TimerCardProps {
-  timer: Timer
+  timer: Timer;
+  index: number;
 }
 
-const TimerCard = ({ timer }: TimerCardProps) => {
+const TimerCard = ({ timer, index }: TimerCardProps) => {
   const { isDark } = useTheme()
   const scale = useSharedValue(1)
 
@@ -29,7 +29,7 @@ const TimerCard = ({ timer }: TimerCardProps) => {
   }))
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.97, { damping: 15 })
+    scale.value = withSpring(0.98, { damping: 15 })
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
   }
 
@@ -39,100 +39,86 @@ const TimerCard = ({ timer }: TimerCardProps) => {
 
   return (
     <AnimatedTouchable
-      entering={SlideInRight.springify().damping(15)}
+      entering={FadeInDown.delay(index * 100).duration(500)}
       exiting={FadeOut}
       style={[animatedStyle]}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      className={`mb-3 mx-4 rounded-2xl ${isDark ? 'bg-gray-800/90' : 'bg-white'}`}
+      className={`mb-3 p-4 rounded-2xl border ${isDark
+          ? 'bg-slate-800 border-slate-700'
+          : 'bg-white border-slate-100'
+        }`}
     >
-      <Animated.View
-        className="p-5"
-        entering={FadeIn.delay(200)}
-      >
-        <View className="flex-row justify-between items-start mb-4">
-          <View className="flex-1 mr-3">
-            <Text
-              className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}
-              numberOfLines={1}
-            >
-              {timer.name}
-            </Text>
-            <View className="flex-row items-center">
-              <View
-                className={`h-2 w-2 rounded-full mr-2 ${timer.status === 'running'
-                    ? 'bg-green-500'
-                    : timer.status === 'paused'
-                      ? 'bg-yellow-500'
-                      : 'bg-red-500'
-                  }`}
-              />
-              <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                {timer.category}
-              </Text>
-            </View>
-          </View>
-
-          <View className="flex-row items-center space-x-3">
-            <TouchableOpacity
-              className={`p-3 rounded-full ${isDark
-                  ? timer.status === 'running' ? 'bg-red-500/20' : 'bg-green-500/20'
-                  : timer.status === 'running' ? 'bg-red-100' : 'bg-green-100'
-                }`}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-              }}
-            >
-              <Ionicons
-                name={timer.status === 'running' ? 'pause' : 'play'}
-                size={20}
-                color={timer.status === 'running'
-                  ? isDark ? '#ef4444' : '#dc2626'
-                  : isDark ? '#22c55e' : '#16a34a'
-                }
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className={`p-3 rounded-full ${isDark ? 'bg-gray-700/50' : 'bg-gray-100'}`}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-              }}
-            >
-              <Ionicons
-                name="refresh"
-                size={20}
-                color={isDark ? '#9ca3af' : '#6b7280'}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View className="mt-2">
-          <View className="flex-row justify-between items-center mb-2">
-            <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              {timer.remainingTime} / {timer.duration}s
-            </Text>
-            <Text className={`text-sm font-medium ${timer.status === 'running'
-                ? isDark ? 'text-green-400' : 'text-green-600'
-                : isDark ? 'text-gray-400' : 'text-gray-600'
-              }`}>
-              {Math.round((timer.remainingTime / timer.duration) * 100)}%
-            </Text>
-          </View>
-
-          <View className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-gray-700' : 'bg-gray-100'
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1 mr-4">
+          <Text className={`text-base font-semibold ${isDark ? 'text-white' : 'text-slate-800'
             }`}>
-            <Animated.View
-              className={`h-full rounded-full ${timer.status === 'running'
-                  ? 'bg-green-500'
-                  : isDark ? 'bg-gray-600' : 'bg-gray-300'
-                }`}
-              style={{ width: `${(timer.remainingTime / timer.duration) * 100}%` }}
-            />
-          </View>
+            {timer.name}
+          </Text>
+          <Text className={`text-sm mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'
+            }`}>
+            {timer.category}
+          </Text>
         </View>
-      </Animated.View>
+
+        <View className="flex-row items-center gap-2">
+          <TouchableOpacity
+            className={`w-10 h-10 rounded-xl items-center justify-center ${timer.status === 'running'
+                ? isDark ? 'bg-red-900/30' : 'bg-red-100'
+                : isDark ? 'bg-green-900/30' : 'bg-green-100'
+              }`}
+            activeOpacity={0.7}
+            onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+          >
+            <Feather
+              name={timer.status === 'running' ? 'pause' : 'play'}
+              size={18}
+              color={timer.status === 'running'
+                ? isDark ? '#f87171' : '#ef4444'
+                : isDark ? '#4ade80' : '#22c55e'
+              }
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className={`w-10 h-10 rounded-xl items-center justify-center ${isDark ? 'bg-slate-700/50' : 'bg-slate-100'
+              }`}
+            activeOpacity={0.7}
+            onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+          >
+            <Feather
+              name="refresh-ccw"
+              size={18}
+              color={isDark ? '#94a3b8' : '#64748b'}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View className="mt-4">
+        <View className="flex-row justify-between items-center mb-2">
+          <Text className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            Progress
+          </Text>
+          <Text className={`text-sm font-medium ${timer.status === 'running'
+              ? isDark ? 'text-green-400' : 'text-green-600'
+              : isDark ? 'text-slate-400' : 'text-slate-600'
+            }`}>
+            {Math.round((timer.remainingTime / timer.duration) * 100)}%
+          </Text>
+        </View>
+
+        <View className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-700/50' : 'bg-slate-100'
+          }`}>
+          <Animated.View
+            className={`h-full rounded-full ${timer.status === 'running'
+                ? 'bg-green-500'
+                : isDark ? 'bg-slate-600' : 'bg-slate-300'
+              }`}
+            style={{ width: `${(timer.remainingTime / timer.duration) * 100}%` }}
+          />
+        </View>
+      </View>
     </AnimatedTouchable>
   )
 }

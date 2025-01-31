@@ -19,7 +19,7 @@ const SettingsScreen = () => {
         Settings
       </Text>
 
-      <View className="space-y-4">
+      <View className="gap-4">
         <Text className={`text-base font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
           Appearance
         </Text>
@@ -38,7 +38,7 @@ const SettingsScreen = () => {
                     : 'bg-gray-50 border-gray-200'
                 }`}
             >
-              <View className="items-center space-y-2">
+              <View className="items-center gap-2">
                 <Ionicons
                   name={option.icon as any}
                   size={24}

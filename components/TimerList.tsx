@@ -1,8 +1,9 @@
 import { useTheme } from '@/context/ThemeContext'
 import type { Timer } from '@/context/TimerContext'
-import { Ionicons } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import React, { useCallback } from 'react'
 import { FlatList, RefreshControl, Text, View } from 'react-native'
+import Animated, { FadeIn } from 'react-native-reanimated'
 import { useTimers } from '../context/TimerContext'
 import TimerCard from './TimerCard'
 
@@ -17,32 +18,39 @@ const TimerList = () => {
     setRefreshing(false)
   }, [loadTimers])
 
-  const renderItem = useCallback(({ item: timer }: { item: Timer }) => (
-    <TimerCard timer={timer} />
+  const renderItem = useCallback(({ item: timer, index }: { item: Timer; index: number }) => (
+    <TimerCard timer={timer} index={index} />
   ), [])
 
   const EmptyComponent = useCallback(() => (
-    <View className="flex-1 justify-center items-center">
-      <View className={`p-6 rounded-full ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
-        <Ionicons
-          name="timer-outline"
-          size={48}
-          color={isDark ? '#4b5563' : '#9ca3af'}
+    <Animated.View
+      entering={FadeIn.duration(500)}
+      className="flex-1 justify-center items-center px-4"
+    >
+      <View className={`w-16 h-16 rounded-2xl items-center justify-center ${isDark ? 'bg-slate-800' : 'bg-slate-100'
+        }`}>
+        <Feather
+          name="clock"
+          size={32}
+          color={isDark ? '#60a5fa' : '#3b82f6'}
         />
       </View>
-      <Text className={`text-lg mt-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-        No timers yet. Tap + to create one!
+      <Text className={`text-lg font-semibold mt-4 ${isDark ? 'text-white' : 'text-slate-800'
+        }`}>
+        No timers yet
       </Text>
-    </View>
+      <Text className={`text-sm text-center mt-2 ${isDark ? 'text-slate-400' : 'text-slate-500'
+        }`}>
+        Create your first timer by tapping the + button
+      </Text>
+    </Animated.View>
   ), [isDark])
-
-  const keyExtractor = useCallback((item: Timer) => item.id.toString(), [])
 
   return (
     <FlatList
       data={timers}
       renderItem={renderItem}
-      keyExtractor={keyExtractor}
+      keyExtractor={(item) => item.id.toString()}
       contentContainerStyle={[
         { flexGrow: 1 },
         timers.length === 0 && { flex: 1 }
@@ -53,13 +61,11 @@ const TimerList = () => {
           refreshing={refreshing}
           onRefresh={onRefresh}
           tintColor={isDark ? '#60a5fa' : '#3b82f6'}
+          colors={[isDark ? '#60a5fa' : '#3b82f6']}
+          progressBackgroundColor={isDark ? '#1e293b' : '#f1f5f9'}
         />
       }
       showsVerticalScrollIndicator={false}
-      removeClippedSubviews={true}
-      maxToRenderPerBatch={10}
-      windowSize={10}
-      initialNumToRender={8}
     />
   )
 }
