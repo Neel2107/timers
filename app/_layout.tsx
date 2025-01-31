@@ -1,10 +1,10 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { KeyboardProvider } from "react-native-keyboard-controller";
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import 'react-native-reanimated';
 import "../global.css";
 
@@ -44,7 +44,7 @@ function RootLayoutNav() {
     <GestureHandlerRootView >
       <KeyboardProvider>
         <Stack screenOptions={{
-          headerShown:false
+          headerShown: false
         }}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
         </Stack>

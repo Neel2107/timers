@@ -1,11 +1,9 @@
-import { View, Text } from 'react-native'
+import { Redirect } from 'expo-router'
 import React from 'react'
 
 const NotFoundScreen = () => {
   return (
-    <View>
-      <Text>NotFoundScreen</Text>
-    </View>
+    <Redirect href={'/(auth)/home'} />
   )
 }
 

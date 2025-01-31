@@ -1,11 +1,9 @@
-import { View, Text } from 'react-native'
+import { Redirect } from 'expo-router'
 import React from 'react'
 
 const RootScreen = () => {
   return (
-    <View className='flex-1 bg-blue-200' >
-      <Text>RootScreen</Text>
-    </View>
+    <Redirect href={'/(auth)/home'} />
   )
 }
 
