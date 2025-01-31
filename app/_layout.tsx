@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { TimerProvider } from '../context/TimerContext'
 import 'react-native-reanimated';
 import "../global.css";
 
@@ -39,17 +40,17 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+
 function RootLayoutNav() {
   return (
-    <GestureHandlerRootView >
-      <KeyboardProvider>
-        <Stack screenOptions={{
-          headerShown: false
-        }}>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack>
-      </KeyboardProvider>
-    </GestureHandlerRootView>
-
-  );
+    <TimerProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <KeyboardProvider>
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        </KeyboardProvider>
+      </GestureHandlerRootView>
+    </TimerProvider>
+  )
 }
