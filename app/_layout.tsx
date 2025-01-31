@@ -48,8 +48,13 @@ function RootLayoutNav() {
       <TimerProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <KeyboardProvider>
-            <Stack>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="index" options={{ headerShown: false }} />
             </Stack>
           </KeyboardProvider>
         </GestureHandlerRootView>

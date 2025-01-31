@@ -1,3 +1,4 @@
+import TimerCard from '@/components/TimerCard'
 import { useTheme } from '@/context/ThemeContext'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
@@ -7,6 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 const HistoryScreen = () => {
   const { isDark } = useTheme()
 
+
+  const timer = { "category": "Break", "duration": 25944, "id": 1738342499174, "name": "Tst", "remainingTime": 25944, "status": "paused" }
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'} p-4`}>
       <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
@@ -23,6 +26,7 @@ const HistoryScreen = () => {
           No timer history yet
         </Text>
       </View>
+
     </SafeAreaView>
   )
 }
