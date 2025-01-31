@@ -6,6 +6,9 @@ import { RefreshControl, Text, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
 import { useTimers } from '../context/TimerContext'
 import TimerCard from './TimerCard'
+import CategoryHeader from './CategoryHeader'
+
+const AnimatedFeather = Animated.createAnimatedComponent(Feather)
 
 const TimerList = () => {
   const { isDark } = useTheme()
@@ -49,39 +52,12 @@ const TimerList = () => {
         exiting={FadeOut.duration(300)}
         layout={LinearTransition.damping(14)}
       >
-        <TouchableOpacity
-          onPress={() => toggleCategory(category)}
-          className={`flex-row items-center justify-between py-4 rounded-2xl ${isDark ? 'bg-slate-800/90' : 'bg-white'
-            } shadow-sm`}
-
-          activeOpacity={0.7}
-        >
-          <View className="flex-row items-center space-x-3">
-            <View className={`w-10 h-10 rounded-xl items-center justify-center ${isDark ? 'bg-slate-700' : 'bg-slate-100'
-              }`}>
-              <Feather
-                name="clock"
-                size={20}
-                color={isDark ? '#94a3b8' : '#64748b'}
-              />
-            </View>
-            <View>
-              <Text className={`text-base font-semibold ${isDark ? 'text-white' : 'text-slate-800'
-                }`}>
-                {category}
-              </Text>
-              <Text className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'
-                }`}>
-                {timers.length} {timers.length === 1 ? 'timer' : 'timers'}
-              </Text>
-            </View>
-          </View>
-          <Feather
-            name={isExpanded ? 'chevron-up' : 'chevron-down'}
-            size={20}
-            color={isDark ? '#94a3b8' : '#64748b'}
-          />
-        </TouchableOpacity>
+        <CategoryHeader
+          category={category}
+          count={timers.length}
+          isExpanded={isExpanded}
+          onToggle={() => toggleCategory(category)}
+        />
 
         {isExpanded && (
           <View className="mt-2 space-y-2 px-1">
