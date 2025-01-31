@@ -11,7 +11,12 @@ interface CreateTimerSheetProps {
   onClose: () => void;
 }
 
+// Add to imports
+import { useTheme } from '@/context/ThemeContext'
+import * as Haptics from 'expo-haptics'
+
 const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetProps) => {
+  const { isDark } = useTheme()
   const { addTimer } = useTimers();
   const [name, setName] = useState('');
   const [duration, setDuration] = useState('');
@@ -77,6 +82,12 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
     []
   );
 
+  const handleCategoryPress = useCallback((cat: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    setCategory(cat)
+    setShowCustomCategory(cat === 'Custom')
+  }, [])
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -85,29 +96,46 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
       enablePanDownToClose
       onClose={handleSheetClose}
       backdropComponent={renderBackdrop}
-      handleIndicatorStyle={{ backgroundColor: '#999' }}
+      handleIndicatorStyle={{ backgroundColor: isDark ? '#4b5563' : '#9ca3af' }}
+      backgroundStyle={{ backgroundColor: isDark ? '#1f2937' : '#ffffff' }}
       enableOverDrag={true}
       style={{ flex: 1 }}
     >
-      <BottomSheetView className="flex-1 p-4">
-        <Text className="text-2xl font-bold mb-6">Create New Timer</Text>
+      <View className="flex-1 p-4">
+        <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
+          Create New Timer
+        </Text>
 
         <View className="space-y-4">
           <View>
-            <Text className="text-base font-medium mb-2">Timer Name</Text>
+            <Text className={`text-base font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Timer Name
+            </Text>
             <TextInput
-              className="w-full p-3 border border-gray-200 rounded-lg"
+              className={`w-full p-3 rounded-lg ${
+                isDark 
+                  ? 'bg-gray-800 border-gray-700 text-white' 
+                  : 'bg-gray-50 border-gray-200 text-black'
+              }`}
               placeholder="e.g., Morning Workout"
+              placeholderTextColor={isDark ? '#6b7280' : '#9ca3af'}
               value={name}
               onChangeText={setName}
             />
           </View>
 
           <View>
-            <Text className="text-base font-medium mb-2">Duration (seconds)</Text>
+            <Text className={`text-base font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Duration (seconds)
+            </Text>
             <TextInput
-              className="w-full p-3 border border-gray-200 rounded-lg"
+              className={`w-full p-3 rounded-lg ${
+                isDark 
+                  ? 'bg-gray-800 border-gray-700 text-white' 
+                  : 'bg-gray-50 border-gray-200 text-black'
+              }`}
               placeholder="e.g., 300 (5 minutes)"
+              placeholderTextColor={isDark ? '#6b7280' : '#9ca3af'}
               keyboardType="numeric"
               value={duration}
               onChangeText={setDuration}
@@ -115,21 +143,31 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
           </View>
 
           <View>
-            <Text className="text-base font-medium mb-2">Category</Text>
+            <Text className={`text-base font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Category
+            </Text>
             <View className="flex-row flex-wrap gap-2">
               {predefinedCategories.map((cat) => (
                 <TouchableOpacity
                   key={cat}
-                  onPress={() => {
-                    setCategory(cat);
-                    setShowCustomCategory(cat === 'Custom');
-                  }}
-                  className={`px-4 py-2 rounded-full border ${category === cat ? 'bg-blue-500 border-blue-500' : 'border-gray-200'
-                    }`}
+                  onPress={() => handleCategoryPress(cat)}
+                  className={`px-4 py-2 rounded-full border ${
+                    category === cat 
+                      ? isDark 
+                        ? 'bg-blue-900 border-blue-800' 
+                        : 'bg-blue-500 border-blue-500'
+                      : isDark
+                        ? 'border-gray-700'
+                        : 'border-gray-200'
+                  }`}
                 >
                   <Text
-                    className={`${category === cat ? 'text-white' : 'text-gray-700'
-                      }`}
+                    className={category === cat 
+                      ? 'text-white' 
+                      : isDark 
+                        ? 'text-gray-300' 
+                        : 'text-gray-700'
+                    }
                   >
                     {cat}
                   </Text>
@@ -138,8 +176,13 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
             </View>
             {showCustomCategory && (
               <TextInput
-                className="w-full mt-2 p-3 border border-gray-200 rounded-lg"
+                className={`w-full mt-2 p-3 rounded-lg ${
+                  isDark 
+                    ? 'bg-gray-800 border-gray-700 text-white' 
+                    : 'bg-gray-50 border-gray-200 text-black'
+                }`}
                 placeholder="Enter custom category"
+                placeholderTextColor={isDark ? '#6b7280' : '#9ca3af'}
                 value={category === 'Custom' ? '' : category}
                 onChangeText={setCategory}
               />
@@ -148,14 +191,18 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
 
           <TouchableOpacity
             onPress={handleCreateTimer}
-            className="w-full bg-blue-500 p-4 rounded-lg mt-4"
+            className={`w-full p-4 rounded-lg mt-4 ${
+              isDark ? 'bg-blue-600' : 'bg-blue-500'
+            }`}
           >
-            <Text className="text-white text-center font-medium">Create Timer</Text>
+            <Text className="text-white text-center font-medium">
+              Create Timer
+            </Text>
           </TouchableOpacity>
         </View>
-      </BottomSheetView>
+      </View>
     </BottomSheet>
-  );
-};
+  )
+}
 
 export default CreateTimerSheet;

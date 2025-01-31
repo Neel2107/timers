@@ -6,7 +6,11 @@ import React, { useCallback, useRef } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+// Add at the top with other imports
+import { useTheme } from '@/context/ThemeContext'
+
 const HomeScreen = () => {
+  const { isDark } = useTheme()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const [isOpen, setIsOpen] = React.useState(false)
 
@@ -21,9 +25,11 @@ const HomeScreen = () => {
   }, [])
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-4">
+    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'} p-4`}>
       <View className="flex-row justify-between items-center mb-6">
-        <Text className="text-2xl font-bold">My Timers</Text>
+        <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+          My Timers
+        </Text>
         <TouchableOpacity
           className="bg-blue-500 rounded-full p-3"
           onPress={handleOpenSheet}
