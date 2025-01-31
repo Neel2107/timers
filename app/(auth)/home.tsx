@@ -6,7 +6,8 @@ import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
 import * as Haptics from 'expo-haptics'
 import { StatusBar } from 'expo-status-bar'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
+// Add Keyboard to imports
+import { Alert, Keyboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -32,6 +33,12 @@ const HomeScreen = () => {
     setShowCustomCategory(false)
   }
 
+  const handleCloseSheet = useCallback(() => {
+    Keyboard.dismiss() // Dismiss keyboard when sheet closes
+    setIsOpen(false)
+    bottomSheetRef.current?.close()
+  }, [])
+
   const handleCreateTimer = useCallback(() => {
     if (!name.trim()) {
       Alert.alert('Error', 'Please enter a timer name')
@@ -49,6 +56,7 @@ const HomeScreen = () => {
       return
     }
 
+    Keyboard.dismiss()
     addTimer({
       name: name.trim(),
       duration: durationNum,
@@ -64,10 +72,7 @@ const HomeScreen = () => {
     bottomSheetRef.current?.expand()
   }, [])
 
-  const handleCloseSheet = useCallback(() => {
-    setIsOpen(false)
-    bottomSheetRef.current?.close()
-  }, [])
+
 
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -91,22 +96,36 @@ const HomeScreen = () => {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Animated.View
         entering={FadeIn.duration(500)}
-        className="px-4 pt-4 pb-6"
+        className="px-4 pt-4 pb-6 flex-1"
       >
-        <View className="flex-row justify-between items-center mb-6">
-          <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
-            My Timers
-          </Text>
-          <TouchableOpacity
-            onPress={handleOpenSheet}
-            className={`w-10 h-10 rounded-full items-center justify-center ${isDark ? 'bg-indigo-600' : 'bg-indigo-500'}`}
-            activeOpacity={0.8}
-          >
-            <Feather name="plus" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
+        <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
+          My Timers
+        </Text>
 
         <TimerList />
+
+        {/* Floating Action Button */}
+        <TouchableOpacity
+          onPress={handleOpenSheet}
+          className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center ${isDark ? 'bg-indigo-500' : 'bg-indigo-500'
+            }`}
+          style={{
+            shadowColor: isDark ? '#6366f1' : '#4f46e5',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 12,
+            elevation: 8,
+          }}
+          activeOpacity={0.8}
+        >
+          <View
+            className="absolute inset-0 rounded-full"
+            style={{
+              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+            }}
+          />
+          <Feather name="plus" size={24} color="white" />
+        </TouchableOpacity>
       </Animated.View>
 
       <BottomSheet
@@ -237,27 +256,22 @@ const HomeScreen = () => {
             {/* Create Button */}
             <TouchableOpacity
               onPress={handleCreateTimer}
-              className={`w-full py-4 rounded-xl ${isDark ? 'bg-indigo-500' : 'bg-indigo-500'}`}
+              className={`w-full py-4 rounded-xl shadow-lg ${isDark ? 'bg-indigo-500' : 'bg-indigo-500'}`}
               style={{
                 shadowColor: '#6366f1',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.2,
-                shadowRadius: 8,
-                elevation: 4,
+                shadowRadius: 10,
               }}
               activeOpacity={0.8}
             >
-              <View
-                className="absolute inset-0 rounded-xl"
-                style={{
-                  backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                  borderRadius: 12,
-                }}
-              />
-              <Text className="text-white text-center text-base font-semibold">
+
+              <Text className="text-white text-center text-lg font-bold">
                 Create Timer
               </Text>
             </TouchableOpacity>
+
+
           </View>
         </Animated.View>
       </BottomSheet>
