@@ -2,11 +2,11 @@ import { useTheme } from '@/context/ThemeContext'
 import type { Timer } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
 import React, { useCallback, useMemo, useState } from 'react'
-import { RefreshControl, Text, TouchableOpacity, View } from 'react-native'
+import { RefreshControl, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
 import { useTimers } from '../context/TimerContext'
-import TimerCard from './TimerCard'
 import CategoryHeader from './CategoryHeader'
+import TimerCard from './TimerCard'
 
 const AnimatedFeather = Animated.createAnimatedComponent(Feather)
 
@@ -60,7 +60,7 @@ const TimerList = () => {
         />
 
         {isExpanded && (
-          <View className="mt-2 space-y-2 px-1">
+          <View className="mt-2 gap-2 px-1">
             {timers.map((timer, index) => (
               <TimerCard
                 key={timer.id}

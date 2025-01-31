@@ -36,7 +36,7 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
       } shadow-sm`}
       activeOpacity={0.7}
     >
-      <View className="flex-row items-center space-x-3">
+      <View className="flex-row items-center gap-3">
         <View className={`w-10 h-10 rounded-xl items-center justify-center ${
           isDark ? 'bg-slate-700' : 'bg-slate-100'
         }`}>
