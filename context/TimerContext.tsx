@@ -10,6 +10,14 @@ export interface Timer {
   remainingTime: number;
 }
 
+export interface TimerHistoryItem {
+  id: number;
+  name: string;
+  category: string;
+  duration: number;
+  completedAt: string;
+}
+
 interface TimerContextType {
   timers: Timer[]
   addTimer: (timer: Omit<Timer, 'id' | 'status' | 'remainingTime'>) => void
@@ -19,17 +27,33 @@ interface TimerContextType {
   resetTimer: (id: number) => void
   updateTimerStatus: (id: number, status: Timer['status']) => void
   updateRemainingTime: (id: number, time: number) => void
+  history: TimerHistoryItem[];
+  clearHistory: () => Promise<void>;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
 export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [timers, setTimers] = useState<Timer[]>([]);
+  const [history, setHistory] = useState<TimerHistoryItem[]>([]);
 
+  // Add load history function
+  const loadHistory = async () => {
+    try {
+      const savedHistory = await AsyncStorage.getItem('timer_history');
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory));
+      }
+    } catch (error) {
+      console.error('Error loading history:', error);
+    }
+  };
+
+  // Load both timers and history on mount
   useEffect(() => {
     loadTimers();
+    loadHistory();
   }, []);
-
   const loadTimers = async () => {
     try {
       const savedTimers = await AsyncStorage.getItem('timers')
@@ -40,6 +64,17 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Error loading timers:', error)
     }
   }
+
+  // Add save history function
+  const saveHistory = async (updatedHistory: TimerHistoryItem[]) => {
+    try {
+      await AsyncStorage.setItem('timer_history', JSON.stringify(updatedHistory));
+      setHistory(updatedHistory);
+    } catch (error) {
+      console.error('Error saving history:', error);
+    }
+  };
+
 
   const addTimer = async (newTimer: Omit<Timer, 'id' | 'status' | 'remainingTime'>) => {
     const timer: Timer = {
@@ -100,28 +135,55 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     saveTimers(updatedTimers)
   }
 
+
+  // Update the updateRemainingTime function to add completed timers to history
   const updateRemainingTime = (id: number, time: number) => {
     const updatedTimers = timers.map(timer => {
       if (timer.id === id) {
-        const remainingTime = Math.max(0, time)
-        const status = remainingTime === 0 ? 'completed' : timer.status
-        return { ...timer, remainingTime, status }
+        const remainingTime = Math.max(0, time);
+        const status = remainingTime === 0 ? 'completed' : timer.status;
+
+        // Add to history if timer just completed
+        if (remainingTime === 0 && timer.status !== 'completed') {
+          const historyItem: TimerHistoryItem = {
+            id: Date.now(),
+            name: timer.name,
+            category: timer.category,
+            duration: timer.duration,
+            completedAt: new Date().toISOString(),
+          };
+          saveHistory([...history, historyItem]);
+        }
+
+        return { ...timer, remainingTime, status };
       }
-      return timer
-    })
-    saveTimers(updatedTimers)
-  }
+      return timer;
+    });
+    saveTimers(updatedTimers);
+  };
+
+  // Add clear history function
+  const clearHistory = async () => {
+    try {
+      await AsyncStorage.removeItem('timer_history');
+      setHistory([]);
+    } catch (error) {
+      console.error('Error clearing history:', error);
+    }
+  };
 
   return (
     <TimerContext.Provider value={{
       timers,
+      history,
       addTimer,
       loadTimers,
       startTimer,
       pauseTimer,
       resetTimer,
       updateTimerStatus,
-      updateRemainingTime
+      updateRemainingTime,
+      clearHistory,
     }}>
       {children}
     </TimerContext.Provider>
