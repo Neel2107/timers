@@ -5,11 +5,10 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { RefreshControl, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
 import { useTimers } from '../context/TimerContext'
+import { CategoryActions } from './CategoryActions'
 import CategoryHeader from './CategoryHeader'
 import TimerCard from './TimerCard'
-import { CategoryActions } from './CategoryActions';
 
-const AnimatedFeather = Animated.createAnimatedComponent(Feather)
 
 const TimerList = () => {
   const { isDark } = useTheme()
@@ -84,20 +83,23 @@ const TimerList = () => {
       entering={FadeIn.duration(500)}
       className="flex-1 justify-center items-center px-4"
     >
-      <View className={`w-16 h-16 rounded-2xl items-center justify-center ${isDark ? 'bg-app-card-dark' : 'bg-app-card-light'
-        }`}>
+      <View className={`w-16 h-16 rounded-2xl items-center justify-center ${
+        isDark ? 'bg-slate-800 border border-slate-700' : 'bg-white border border-slate-200'
+      }`}>
         <Feather
           name="clock"
           size={32}
-          color={isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)'}
+          color={isDark ? '#94a3b8' : '#64748b'}
         />
       </View>
-      <Text className={`text-lg font-semibold mt-4 ${isDark ? 'text-content-primary-dark' : 'text-content-primary-light'
-        }`}>
+      <Text className={`text-lg font-medium mt-4 ${
+        isDark ? 'text-slate-50' : 'text-slate-900'
+      }`}>
         No timers yet
       </Text>
-      <Text className={`text-sm text-center mt-2 ${isDark ? 'text-content-secondary-dark' : 'text-content-secondary-light'
-        }`}>
+      <Text className={`text-sm text-center mt-2 ${
+        isDark ? 'text-slate-400' : 'text-slate-500'
+      }`}>
         Create your first timer by tapping the + button
       </Text>
     </Animated.View>
@@ -114,6 +116,7 @@ const TimerList = () => {
         {
           flexGrow: 1,
           paddingBottom: 100,
+          paddingHorizontal: 4,
         },
         timers.length === 0 && { flex: 1 }
       ]}
@@ -122,8 +125,8 @@ const TimerList = () => {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor={isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)'}
-          colors={[isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)']}
+          tintColor={isDark ? '#94a3b8' : '#64748b'}
+          colors={[isDark ? '#94a3b8' : '#64748b']}
           progressBackgroundColor={isDark ? '#1e293b' : '#f8fafc'}
         />
       }

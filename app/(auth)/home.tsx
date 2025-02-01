@@ -94,11 +94,8 @@ const HomeScreen = () => {
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Animated.View
-        entering={FadeIn.duration(500)}
-        className="px-4 pt-4 pb-6 flex-1"
-      >
-        <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
+      <View className="p-4 flex-1">
+        <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
           My Timers
         </Text>
 
@@ -107,21 +104,20 @@ const HomeScreen = () => {
         {/* Floating Action Button */}
         <TouchableOpacity
           onPress={handleOpenSheet}
-          className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center ${
-            isDark ? 'bg-indigo-500' : 'bg-indigo-500'
-          }`}
+          className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center ${isDark ? 'bg-indigo-600' : 'bg-indigo-500'
+            }`}
           style={{
-            shadowColor: isDark ? '#6366f1' : '#4f46e5',
+            shadowColor: isDark ? '#60a5fa' : '#3b82f6',
             shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: isDark ? 0.6 : 0.15,
-            shadowRadius: 16,
-            elevation: 12,
+            shadowOpacity: isDark ? 0.4 : 0.2,
+            shadowRadius: 12,
+            elevation: 8,
           }}
           activeOpacity={0.8}
         >
           <Feather name="plus" size={24} color="white" />
         </TouchableOpacity>
-      </Animated.View>
+      </View>
 
       <BottomSheet
         ref={bottomSheetRef}
@@ -131,22 +127,19 @@ const HomeScreen = () => {
         onClose={handleCloseSheet}
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={{
-          backgroundColor: isDark ? '#475569' : '#94a3b8',
+          backgroundColor: isDark ? '#4b5563' : '#9ca3af',
           width: 40,
           height: 4
         }}
         backgroundStyle={{
-          backgroundColor: isDark ? '#0f172a' : '#ffffff'
+          backgroundColor: isDark ? '#1f2937' : '#ffffff'
         }}
-        enableOverDrag={true}
-        keyboardBehavior="extend"
-        keyboardBlurBehavior="restore"
       >
         <Animated.View
           entering={FadeIn.duration(300)}
           className="flex-1 px-6 pt-4"
         >
-          <Text className={`text-2xl font-bold mb-2 ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
+          <Text className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
             Create Timer
           </Text>
           <Text className={`text-sm mb-6 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -159,16 +152,17 @@ const HomeScreen = () => {
               <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 Timer Name
               </Text>
-              <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+              <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+                }`}>
                 <Feather
                   name="clock"
                   size={18}
-                  color={isDark ? '#94a3b8' : '#64748b'}
+                  color={isDark ? '#9ca3af' : '#6b7280'}
                 />
                 <TextInput
-                  className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
+                  className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-white' : 'text-black'}`}
                   placeholder="e.g., Morning Workout"
-                  placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
+                  placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
                   value={name}
                   onChangeText={setName}
                 />
@@ -209,20 +203,22 @@ const HomeScreen = () => {
                     onPress={() => handleCategoryPress(cat)}
                     className={`px-4 py-2.5 rounded-xl border ${category === cat
                       ? isDark
-                        ? 'bg-indigo-500 border-indigo-400'
-                        : 'bg-indigo-500 border-indigo-400'
+                        ? 'bg-indigo-900 border-indigo-800'
+                        : 'bg-indigo-50 border-indigo-200'
                       : isDark
-                        ? 'bg-slate-800/50 border-slate-700'
+                        ? 'bg-slate-800 border-slate-700'
                         : 'bg-slate-50 border-slate-200'
                       }`}
                     activeOpacity={0.7}
                   >
                     <Text
                       className={`text-sm font-medium ${category === cat
-                        ? 'text-white'
+                        ? isDark
+                          ? 'text-indigo-400'
+                          : 'text-indigo-600'
                         : isDark
-                          ? 'text-slate-300'
-                          : 'text-slate-700'
+                          ? 'text-slate-400'
+                          : 'text-slate-600'
                         }`}
                     >
                       {cat}
@@ -251,16 +247,15 @@ const HomeScreen = () => {
             {/* Create Button */}
             <TouchableOpacity
               onPress={handleCreateTimer}
-              className={`w-full py-4 rounded-xl shadow-lg ${isDark ? 'bg-indigo-500' : 'bg-indigo-500'}`}
+              className={`w-full py-4 rounded-xl ${isDark ? 'bg-indigo-600' : 'bg-indigo-500'}`}
               style={{
-                shadowColor: '#6366f1',
+                shadowColor: isDark ? '#60a5fa' : '#3b82f6',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.2,
-                shadowRadius: 10,
+                shadowRadius: 8,
               }}
               activeOpacity={0.8}
             >
-
               <Text className="text-white text-center text-lg font-bold">
                 Create Timer
               </Text>

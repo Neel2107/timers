@@ -3,20 +3,18 @@ import type { Timer } from '@/context/TimerContext'
 import { useTimers } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { View } from 'react-native'
+import React, { useCallback, useEffect, useRef } from 'react'
+import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Animated, {
   FadeInUp,
   FadeOutUp,
   interpolateColor,
-  LinearTransition,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue
 } from 'react-native-reanimated'
 import { TimerControls } from './timer/TimerControls'
-import { TimerInfo } from './timer/TimerInfo'
 import { TimerProgress } from './timer/TimerProgress'
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
@@ -37,12 +35,12 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
   useEffect(() => {
     if (timer.status === 'running' && timer.remainingTime > 0) {
       lastTickRef.current = Date.now()
-      
+
       intervalRef.current = setInterval(() => {
         const now = Date.now()
         const drift = now - lastTickRef.current
         const tickCount = Math.floor(drift / 1000)
-        
+
         if (tickCount >= 1) {
           const newRemainingTime = Math.max(0, timer.remainingTime - tickCount)
           updateRemainingTime(timer.id, newRemainingTime)
@@ -59,9 +57,7 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
     }
   }, [timer.status, timer.remainingTime, timer.id, updateRemainingTime])
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }]
-  }))
+
 
   useEffect(() => {
     if (timer.status === 'running' && timer.remainingTime > 0) {
@@ -89,7 +85,7 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
   }, [timer.id, resetTimer])
 
   // Update progressPercentage calculation to use useDerivedValue
-  const progressPercentage = useDerivedValue(() => 
+  const progressPercentage = useDerivedValue(() =>
     Math.round((timer.remainingTime / timer.duration) * 100)
   )
 
@@ -118,16 +114,14 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
     <AnimatedTouchable
       entering={FadeInUp.duration(400).delay(index * 50).springify()}
       exiting={FadeOutUp.duration(300)}
-      // layout={LinearTransition.springify()}
       style={[
         {
           shadowColor: isDark ? '#000' : '#64748b',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: isDark ? 0.6 : 0.15,
-          shadowRadius: 16,
-          elevation: 12,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: isDark ? 0.3 : 0.1,
+          shadowRadius: 8,
+          elevation: 8,
         },
-        animatedStyle
       ]}
       onPressIn={() => {
         scale.value = 0.98
@@ -136,19 +130,14 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
       onPressOut={() => {
         scale.value = 1
       }}
-      className={`p-6 rounded-2xl border ${
-        isDark
-          ? 'bg-slate-800 border-slate-700'
-          : 'bg-white border-slate-200'
-      }`}
+      className={`p-4 rounded-2xl border ${isDark
+        ? 'bg-slate-800 border-slate-700'
+        : 'bg-white border-slate-200'
+        }`}
     >
-      <View className="flex-row items-start justify-between gap-6">
-        <View className="flex-row items-center gap-5 flex-1">
-          <View className={`w-16 h-16 rounded-2xl items-center justify-center ${timer.status === 'completed'
-              ? isDark ? 'bg-status-success-dark/15' : 'bg-status-success-light/15'
-              : timer.status === 'running'
-                ? isDark ? 'bg-brand-secondary-dark/15' : 'bg-brand-secondary/15'
-                : isDark ? 'bg-content-secondary-dark/15' : 'bg-content-secondary-light/15'
+      <View className="flex-row items-start justify-between gap-4">
+        <View className="flex-row items-center gap-4 flex-1">
+          <View className={`w-12 h-12 rounded-xl items-center  justify-center ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'
             }`}>
             <Feather
               name={
@@ -158,36 +147,41 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
                     ? 'activity'
                     : 'clock'
               }
-              size={32}
-              color={
-                timer.status === 'completed'
-                  ? isDark ? 'rgb(110, 231, 183)' : 'rgb(5, 150, 105)'
-                  : timer.status === 'running'
-                    ? isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)'
-                    : isDark ? 'rgb(148, 163, 184)' : 'rgb(100, 116, 139)'
-              }
+              size={24}
+              color={isDark ? '#94a3b8' : '#64748b'}
             />
           </View>
-          <TimerInfo
-            name={timer.name}
-            category={timer.category}
-          />
+          <View className="flex-1">
+            <Text className={`text-xl font-bold mb-1 ${isDark ? 'text-slate-50' : 'text-slate-900'
+              }`}>
+              {timer.name}
+            </Text>
+            <Text className={`text-base ${isDark ? 'text-slate-400' : 'text-slate-500'
+              }`}>
+              {timer.category}
+            </Text>
+          </View>
         </View>
 
-        <TimerControls
-          status={timer.status}
-          onPlayPause={handlePlayPause}
-          onReset={handleReset}
-          remainingTime={timer.remainingTime}
-        />
+        <View>
+
+          <TimerControls
+            status={timer.status}
+            onPlayPause={handlePlayPause}
+            onReset={handleReset}
+            remainingTime={timer.remainingTime}
+          />
+        </View>
       </View>
 
-      <TimerProgress
-        status={timer.status}
-        progressPercentage={progressPercentage.value}
-        remainingTime={timer.remainingTime}
-        progressStyle={progressStyle}
-      />
+      <View>
+        <TimerProgress
+          status={timer.status}
+          progressPercentage={progressPercentage.value}
+          remainingTime={timer.remainingTime}
+          progressStyle={progressStyle}
+        />
+      </View>
     </AnimatedTouchable>
   )
 })

@@ -35,26 +35,33 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
     return (
         <Animated.View
             entering={FadeIn.duration(300)}
-            className="flex-row gap-2 mt-2 mb-3"
+            className="flex-row gap-2 mt-2"
         >
             <TouchableOpacity
                 onPress={() => handleAction('start')}
-                className={`flex-1 flex-row items-center justify-center py-2 px-3 rounded-xl ${isDark ? 'bg-emerald-300/20 border-2 border-emerald-300/30' : 'bg-emerald-600/10 border-2 border-emerald-600/20'}`}
+                className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-2 rounded-xl border ${isDark
+                        ? 'bg-slate-800 border-slate-700'
+                        : 'bg-white border-slate-200'
+                    }`}
                 activeOpacity={0.7}
             >
                 <Feather
                     name="play"
                     size={16}
-                    color={isDark ? '#6ee7b7' : '#059669'}
+                    color={isDark ? '#818cf8' : '#6366f1'}
                 />
-                <Text className={`ml-2 font-medium ${isDark ? 'text-emerald-300' : 'text-emerald-600'}`}>
+                <Text className={`ml-2 font-medium ${isDark ? 'text-slate-50' : 'text-slate-900'
+                    }`}>
                     Start All
                 </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 onPress={() => handleAction('pause')}
-                className={`flex-1 flex-row items-center justify-center py-2 px-3 rounded-xl ${isDark ? 'bg-indigo-400/20 border-2 border-indigo-400/30' : 'bg-indigo-500/10 border-2 border-indigo-500/20'}`}
+                className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-2 rounded-xl border ${isDark
+                        ? 'bg-slate-800 border-slate-700'
+                        : 'bg-white border-slate-200'
+                    }`}
                 activeOpacity={0.7}
             >
                 <Feather
@@ -62,22 +69,27 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
                     size={16}
                     color={isDark ? '#818cf8' : '#6366f1'}
                 />
-                <Text className={`ml-2 font-medium ${isDark ? 'text-indigo-500' : 'text-indigo-500'}`}>
+                <Text className={`ml-2 font-medium ${isDark ? 'text-slate-50' : 'text-slate-900'
+                    }`}>
                     Pause All
                 </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 onPress={() => handleAction('reset')}
-                className={`flex-1 flex-row items-center justify-center py-2 px-3 rounded-xl ${isDark ? 'bg-slate-800/50 border-2 border-slate-700' : 'bg-slate-100 border-2 border-slate-200'}`}
+                className={`flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl gap-2 border ${isDark
+                        ? 'bg-slate-800 border-slate-700'
+                        : 'bg-white border-slate-200'
+                    }`}
                 activeOpacity={0.7}
             >
                 <Feather
                     name="refresh-ccw"
                     size={16}
-                    color={isDark ? '#94a3b8' : '#64748b'}
+                    color={isDark ? '#818cf8' : '#6366f1'}
                 />
-                <Text className={`ml-2 font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                <Text className={`ml-2 font-medium ${isDark ? 'text-slate-50' : 'text-slate-900'
+                    }`}>
                     Reset All
                 </Text>
             </TouchableOpacity>
