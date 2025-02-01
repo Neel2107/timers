@@ -232,6 +232,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateRemainingTime = async (id: number, time: number) => {
+    // Update a single timer without affecting others
     const timer = timers.find(t => t.id === id);
     if (!timer) return;
 
@@ -303,6 +304,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         ? { ...timer, status: 'running' as const }
         : timer
     );
+    setTimers(updatedTimers);
     saveTimers(updatedTimers);
   };
 
@@ -318,7 +320,12 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const resetCategoryTimers = (category: string) => {
     const updatedTimers = timers.map(timer =>
       timer.category === category
-        ? { ...timer, status: 'paused' as const, remainingTime: timer.duration }
+        ? {
+          ...timer,
+          status: 'paused' as const,
+          remainingTime: timer.duration,
+          alerts: timer.alerts.map(alert => ({ ...alert, triggered: false }))
+        }
         : timer
     );
     saveTimers(updatedTimers);
