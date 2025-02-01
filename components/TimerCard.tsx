@@ -88,9 +88,9 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
     resetTimer(timer.id)
   }, [timer.id, resetTimer])
 
-  const progressPercentage = useMemo(() =>
-    Math.round((timer.remainingTime / timer.duration) * 100),
-    [timer.remainingTime, timer.duration]
+  // Update progressPercentage calculation to use useDerivedValue
+  const progressPercentage = useDerivedValue(() => 
+    Math.round((timer.remainingTime / timer.duration) * 100)
   )
 
   const progress = useDerivedValue(() => {
@@ -184,7 +184,7 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
 
       <TimerProgress
         status={timer.status}
-        progressPercentage={progressPercentage}
+        progressPercentage={progressPercentage.value}
         remainingTime={timer.remainingTime}
         progressStyle={progressStyle}
       />

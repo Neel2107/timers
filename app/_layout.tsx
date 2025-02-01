@@ -11,6 +11,16 @@ import { TimerProvider } from '../context/TimerContext';
 import "../global.css";
 
 export { ErrorBoundary } from 'expo-router';
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from 'react-native-reanimated';
+
+// This is the default configuration
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false, // Reanimated runs in strict mode by default
+});
 
 export const unstable_settings = {
   initialRouteName: 'index',

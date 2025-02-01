@@ -7,6 +7,7 @@ import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-nat
 import { useTimers } from '../context/TimerContext'
 import CategoryHeader from './CategoryHeader'
 import TimerCard from './TimerCard'
+import { CategoryActions } from './CategoryActions';
 
 const AnimatedFeather = Animated.createAnimatedComponent(Feather)
 
@@ -43,8 +44,7 @@ const TimerList = () => {
   }, [loadTimers])
 
   const renderCategory = useCallback(({ category, timers }: { category: string, timers: Timer[] }) => {
-    const isExpanded = expandedCategories.includes(category)
-
+    const isExpanded = expandedCategories.includes(category);
     return (
       <Animated.View
         className="mb-3"
@@ -59,6 +59,11 @@ const TimerList = () => {
           onToggle={() => toggleCategory(category)}
         />
 
+        <CategoryActions
+          category={category}
+          isExpanded={isExpanded}
+        />
+
         {isExpanded && (
           <View className="mt-2 gap-2 px-1">
             {timers.map((timer, index) => (
@@ -71,8 +76,8 @@ const TimerList = () => {
           </View>
         )}
       </Animated.View>
-    )
-  }, [isDark, expandedCategories, toggleCategory])
+    );
+  }, [isDark, expandedCategories, toggleCategory]);
 
   const EmptyComponent = useCallback(() => (
     <Animated.View

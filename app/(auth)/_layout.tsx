@@ -11,6 +11,9 @@ const AuthLayout = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
+          paddingBottom: 8,
+          paddingTop: 8,
+          height: 65,
           backgroundColor: isDark ? '#1f2937' : '#ffffff',
           borderTopWidth: 0,
           shadowColor: isDark ? '#000' : '#000',

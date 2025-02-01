@@ -29,6 +29,9 @@ interface TimerContextType {
   updateRemainingTime: (id: number, time: number) => void
   history: TimerHistoryItem[];
   clearHistory: () => Promise<void>;
+  startCategoryTimers: (category: string) => void;
+  pauseCategoryTimers: (category: string) => void;
+  resetCategoryTimers: (category: string) => void;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -172,6 +175,33 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const startCategoryTimers = (category: string) => {
+    const updatedTimers = timers.map(timer =>
+      timer.category === category && timer.status !== 'completed'
+        ? { ...timer, status: 'running' as const }
+        : timer
+    );
+    saveTimers(updatedTimers);
+  };
+
+  const pauseCategoryTimers = (category: string) => {
+    const updatedTimers = timers.map(timer =>
+      timer.category === category && timer.status === 'running'
+        ? { ...timer, status: 'paused' as const }
+        : timer
+    );
+    saveTimers(updatedTimers);
+  };
+
+  const resetCategoryTimers = (category: string) => {
+    const updatedTimers = timers.map(timer =>
+      timer.category === category
+        ? { ...timer, status: 'paused' as const, remainingTime: timer.duration }
+        : timer
+    );
+    saveTimers(updatedTimers);
+  };
+
   return (
     <TimerContext.Provider value={{
       timers,
@@ -184,6 +214,9 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       updateTimerStatus,
       updateRemainingTime,
       clearHistory,
+      startCategoryTimers,
+      pauseCategoryTimers,
+      resetCategoryTimers,
     }}>
       {children}
     </TimerContext.Provider>

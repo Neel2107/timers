@@ -2,7 +2,12 @@ import { useTheme } from '@/context/ThemeContext'
 import { Feather } from '@expo/vector-icons'
 import React, { useEffect } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import Animated, { 
+  useAnimatedStyle, 
+  useSharedValue, 
+  withSpring,
+  useDerivedValue 
+} from 'react-native-reanimated'
 
 const AnimatedFeather = Animated.createAnimatedComponent(Feather)
 
@@ -24,8 +29,11 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
     })
   }, [isExpanded])
 
+  // Use useDerivedValue for rotation calculation
+  const rotation = useDerivedValue(() => `${rotateZ.value}deg`)
+
   const chevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotateZ: `${rotateZ.value}deg` }]
+    transform: [{ rotateZ: rotation.value }]
   }))
 
   return (

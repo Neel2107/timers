@@ -107,7 +107,7 @@ const HomeScreen = () => {
         {/* Floating Action Button */}
         <TouchableOpacity
           onPress={handleOpenSheet}
-          className={`absolute bottom-6 right-6 w-14 h-14 rounded-2xl items-center justify-center ${
+          className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center ${
             isDark ? 'bg-indigo-500' : 'bg-indigo-500'
           }`}
           style={{
