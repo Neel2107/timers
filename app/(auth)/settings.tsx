@@ -127,6 +127,7 @@ const SettingsScreen = () => {
               </View>
             </TouchableOpacity>
           </View>
+          
 
          
         </View>

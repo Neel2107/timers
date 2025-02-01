@@ -35,18 +35,18 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
   useEffect(() => {
     if (timer.status === 'running' && timer.remainingTime > 0) {
       lastTickRef.current = Date.now()
-
+      
       intervalRef.current = setInterval(() => {
         const now = Date.now()
         const drift = now - lastTickRef.current
         const tickCount = Math.floor(drift / 1000)
-
+        
         if (tickCount >= 1) {
           const newRemainingTime = Math.max(0, timer.remainingTime - tickCount)
           updateRemainingTime(timer.id, newRemainingTime)
           lastTickRef.current = now - (drift % 1000)
         }
-      }, 1000)
+      }, 100) // Reduced interval for smoother updates
     }
 
     return () => {
@@ -55,22 +55,9 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
         intervalRef.current = undefined
       }
     }
-  }, [timer.status, timer.remainingTime, timer.id, updateRemainingTime])
+  }, [timer.status, timer.id, updateRemainingTime])
 
-
-
-  useEffect(() => {
-    if (timer.status === 'running' && timer.remainingTime > 0) {
-      intervalRef.current = setInterval(() => {
-        updateRemainingTime(timer.id, timer.remainingTime - 1)
-      }, 1000)
-    }
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [timer.status, timer.remainingTime, timer.id, updateRemainingTime])
+  // Remove the second useEffect with setInterval
 
   const handlePlayPause = useCallback(() => {
     if (timer.status === 'running') {
@@ -186,4 +173,4 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
   )
 })
 
-export default TimerCard
+export default TimerCard;

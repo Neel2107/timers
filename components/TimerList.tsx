@@ -58,10 +58,7 @@ const TimerList = () => {
           onToggle={() => toggleCategory(category)}
         />
 
-        <CategoryActions
-          category={category}
-          isExpanded={isExpanded}
-        />
+      
 
         {isExpanded && (
           <View className="mt-2 gap-2 px-1">
@@ -81,25 +78,23 @@ const TimerList = () => {
   const EmptyComponent = useCallback(() => (
     <Animated.View
       entering={FadeIn.duration(500)}
+
       className="flex-1 justify-center items-center px-4"
     >
-      <View className={`w-16 h-16 rounded-2xl items-center justify-center ${
-        isDark ? 'bg-slate-800 border border-slate-700' : 'bg-white border border-slate-200'
-      }`}>
+      <View className={`w-16 h-w-16 rounded-full  items-center justify-center ${isDark ? 'bg-slate-800 border border-slate-700  ' : 'bg-white border border-slate-200  '
+        }`}>
         <Feather
           name="clock"
           size={32}
           color={isDark ? '#94a3b8' : '#64748b'}
         />
       </View>
-      <Text className={`text-lg font-medium mt-4 ${
-        isDark ? 'text-slate-50' : 'text-slate-900'
-      }`}>
+      <Text className={`text-lg font-medium mt-4 ${isDark ? 'text-slate-50' : 'text-slate-900'
+        }`}>
         No timers yet
       </Text>
-      <Text className={`text-sm text-center mt-2 ${
-        isDark ? 'text-slate-400' : 'text-slate-500'
-      }`}>
+      <Text className={`text-sm text-center mt-2 ${isDark ? 'text-slate-400' : 'text-slate-500'
+        }`}>
         Create your first timer by tapping the + button
       </Text>
     </Animated.View>

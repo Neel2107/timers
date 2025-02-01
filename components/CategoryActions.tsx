@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 
 interface CategoryActionsProps {
     category: string;
@@ -35,13 +35,14 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
     return (
         <Animated.View
             entering={FadeIn.duration(300)}
+            layout={LinearTransition.damping(14)}
             className="flex-row gap-2 mt-2"
         >
             <TouchableOpacity
                 onPress={() => handleAction('start')}
                 className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-1 rounded-xl border ${isDark
-                        ? 'bg-slate-800 border-slate-700'
-                        : 'bg-white border-slate-200'
+                    ? 'bg-slate-800 border-slate-700'
+                    : 'bg-white border-slate-200'
                     }`}
                 activeOpacity={0.7}
             >
@@ -59,8 +60,8 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
             <TouchableOpacity
                 onPress={() => handleAction('pause')}
                 className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-1 rounded-xl border ${isDark
-                        ? 'bg-slate-800 border-slate-700'
-                        : 'bg-white border-slate-200'
+                    ? 'bg-slate-800 border-slate-700'
+                    : 'bg-white border-slate-200'
                     }`}
                 activeOpacity={0.7}
             >
@@ -78,8 +79,8 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
             <TouchableOpacity
                 onPress={() => handleAction('reset')}
                 className={`flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl gap-1 border ${isDark
-                        ? 'bg-slate-800 border-slate-700'
-                        : 'bg-white border-slate-200'
+                    ? 'bg-slate-800 border-slate-700'
+                    : 'bg-white border-slate-200'
                     }`}
                 activeOpacity={0.7}
             >
