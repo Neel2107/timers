@@ -32,11 +32,7 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <CompletionModal
-        isVisible={showCompletionModal}
-        onClose={() => setShowCompletionModal(false)}
-        timerName={completedTimerName}
-      />
+
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <View className="px-4 flex-1">
         <Text className={`text-2xl  pt-4 font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
@@ -62,13 +58,22 @@ const HomeScreen = () => {
           <Feather name="plus" size={24} color="white" />
         </TouchableOpacity>
       </View>
+      <View>
 
+        <CompletionModal
+          isVisible={showCompletionModal}
+          onClose={() => setShowCompletionModal(false)}
+          timerName={completedTimerName}
+        />
+      </View>
       <CreateTimerSheet
         bottomSheetRef={bottomSheetRef}
         isOpen={isOpen}
         onClose={handleCloseSheet}
 
       />
+
+
     </SafeAreaView>
   )
 }
