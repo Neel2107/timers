@@ -1,7 +1,17 @@
+import { handleTimerAlert, logAlertStatus } from '@/utils/alertHandlers';
+import {
+  loadHistory as loadHistoryFromStorage,
+  loadTimers as loadTimersFromStorage
+} from '@/utils/storage';
+import {
+  getNextAlert,
+  updateTimerAlerts,
+  updateTimersInCategory
+} from '@/utils/timerOperations';
+import { createHistoryItem, shouldShowCompletionModal, updateTimerWithRemaining } from '@/utils/timerStateUpdates';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Haptics from 'expo-haptics';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { ToastAndroid } from 'react-native';
+
 export interface TimerAlert {
   percentage: number
   triggered: boolean
@@ -53,43 +63,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [completedTimerName, setCompletedTimerName] = useState('')
 
-  // Add load history function
-  const loadHistory = async () => {
-    try {
-      const savedHistory = await AsyncStorage.getItem('timer_history');
-      if (savedHistory) {
-        setHistory(JSON.parse(savedHistory));
-      }
-    } catch (error) {
-      console.error('Error loading history:', error);
-    }
-  };
 
-  // Load both timers and history on mount
-  useEffect(() => {
-    loadTimers();
-    loadHistory();
-  }, []);
-
-  const loadTimers = async () => {
-    try {
-      const savedTimers = await AsyncStorage.getItem('timers')
-      if (savedTimers) {
-        const parsedTimers = JSON.parse(savedTimers)
-        // Add validation to ensure we don't load invalid timer data
-        if (Array.isArray(parsedTimers)) {
-          setTimers(parsedTimers)
-        } else {
-          setTimers([])
-        }
-      }
-    } catch (error) {
-      console.error('Error loading timers:', error)
-      setTimers([]) // Ensure timers are cleared on error
-    }
-  }
-
-  // Add save history function
   const saveHistory = async (updatedHistory: TimerHistoryItem[]) => {
     try {
       await AsyncStorage.setItem('timer_history', JSON.stringify(updatedHistory));
@@ -99,14 +73,13 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-
   const addTimer = async (newTimer: Omit<Timer, 'id' | 'status' | 'remainingTime'>) => {
     const timer: Timer = {
       ...newTimer,
       id: Date.now(),
       status: 'paused',
       remainingTime: newTimer.duration,
-      alerts: newTimer.alerts || [], // Add this line to initialize alerts
+      alerts: newTimer.alerts || [],
     }
 
     const updatedTimers = [...timers, timer]
@@ -163,124 +136,52 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const checkAlerts = async (timer: Timer) => {
-    if (!timer.alerts || timer.status !== 'running') {
-      console.log('Alert check skipped:', {
-        reason: !timer.alerts ? 'No alerts' : 'Timer not running',
-        timerStatus: timer.status,
-        alertsCount: timer.alerts?.length
-      });
-      return;
-    }
+    if (!timer.alerts || timer.status !== 'running') return
 
-    const currentPercentage = ((timer.duration - timer.remainingTime) / timer.duration) * 100;
+    const currentPercentage = ((timer.duration - timer.remainingTime) / timer.duration) * 100
+    const currentTimer = timers.find(t => t.id === timer.id)
+    if (!currentTimer) return
 
-    // Get the current timer with latest state
-    const currentTimer = timers.find(t => t.id === timer.id);
-    if (!currentTimer) return;
-
-    // Find the next untriggered alert that should be triggered
-    const nextAlert = currentTimer.alerts
-      .filter(alert => !alert.triggered && currentPercentage >= alert.percentage)
-      .sort((a, b) => a.percentage - b.percentage)[0];
-
-    console.log('Alert Status:', {
-      currentPercentage: currentPercentage.toFixed(2) + '%',
-      nextAlert: nextAlert?.percentage,
-      allAlerts: currentTimer.alerts.map(a => ({
-        percentage: a.percentage,
-        triggered: a.triggered
-      }))
-    });
+    const nextAlert = getNextAlert(currentTimer)
+    logAlertStatus(currentPercentage, nextAlert, currentTimer.alerts)
 
     if (nextAlert) {
-      console.log('Triggering Alert:', {
-        percentage: nextAlert.percentage,
-        timerName: timer.name
-      });
-
-      // Trigger haptic feedback
-      await Haptics.notificationAsync(
-        nextAlert.percentage === 100
-          ? Haptics.NotificationFeedbackType.Success
-          : Haptics.NotificationFeedbackType.Warning
-      );
-
-      // Show toast notification
-      ToastAndroid.show(
-        `${timer.name} is ${nextAlert.percentage}% complete!`,
-        ToastAndroid.SHORT
-      );
-
-      // Update the alerts state
-      const updatedTimers = timers.map(t => {
-        if (t.id === timer.id) {
-          return {
-            ...t,
-            alerts: t.alerts.map(alert => ({
-              ...alert,
-              triggered: alert.triggered || alert.percentage === nextAlert.percentage
-            }))
-          };
-        }
-        return t;
-      });
-
-      // Update state synchronously
-      setTimers(updatedTimers);
-      await saveTimers(updatedTimers);
+      await handleTimerAlert(timer, nextAlert)
+      const updatedTimers = timers.map(t =>
+        t.id === timer.id
+          ? { ...t, alerts: updateTimerAlerts(t, currentPercentage) }
+          : t
+      )
+      setTimers(updatedTimers)
+      await saveTimers(updatedTimers)
     }
-  };
+  }
+
 
   const updateRemainingTime = async (id: number, time: number) => {
-    // Update a single timer without affecting others
-    const timer = timers.find(t => t.id === id);
-    if (!timer) return;
+    const timer = timers.find(t => t.id === id)
+    if (!timer) return
 
-    const remainingTime = Math.max(0, time);
-    const status = remainingTime === 0 ? 'completed' : timer.status;
+    const updatedTimer = updateTimerWithRemaining(timer, time)
+    const updatedTimers = timers.map(t => (t.id === id ? updatedTimer : t))
 
-    // Update timer state first
-    const updatedTimers = timers.map(t => {
-      if (t.id === id) {
-        const updatedTimer = {
-          ...t,
-          remainingTime,
-          status
-        };
-
-        // Handle timer completion
-        if (remainingTime === 0 && t.status !== 'completed') {
-          const historyItem: TimerHistoryItem = {
-            id: Date.now(),
-            name: t.name,
-            category: t.category,
-            duration: t.duration,
-            completedAt: new Date().toISOString(),
-          };
-          saveHistory([...history, historyItem]);
-          setShowCompletionModal(true);
-          setCompletedTimerName(t.name);
-        }
-
-        return updatedTimer;
-      }
-      return t;
-    });
-
-    // Update state synchronously
-    setTimers(updatedTimers);
-    await saveTimers(updatedTimers);
-
-    // Check alerts after state is updated
-    if (status === 'running') {
-      await checkAlerts(timer);
+    if (shouldShowCompletionModal(timer, time)) {
+      const historyItem = createHistoryItem(timer)
+      await saveHistory([...history, historyItem])
+      setShowCompletionModal(true)
+      setCompletedTimerName(timer.name)
     }
-  };
 
-  // Add clear history function
+    setTimers(updatedTimers)
+    await saveTimers(updatedTimers)
+
+    if (updatedTimer.status === 'running') {
+      await checkAlerts(timer)
+    }
+  }
+
   const clearHistory = async () => {
     try {
-      // Clear both history and timers
       await Promise.all([
         AsyncStorage.removeItem('timer_history'),
         AsyncStorage.removeItem('timers')
@@ -299,37 +200,37 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const startCategoryTimers = (category: string) => {
-    const updatedTimers = timers.map(timer =>
-      timer.category === category && timer.status !== 'completed'
-        ? { ...timer, status: 'running' as const }
-        : timer
-    );
-    setTimers(updatedTimers);
-    saveTimers(updatedTimers);
-  };
+    const updatedTimers = updateTimersInCategory(timers, category, 'start')
+    setTimers(updatedTimers)
+    saveTimers(updatedTimers)
+  }
 
   const pauseCategoryTimers = (category: string) => {
-    const updatedTimers = timers.map(timer =>
-      timer.category === category && timer.status === 'running'
-        ? { ...timer, status: 'paused' as const }
-        : timer
-    );
-    saveTimers(updatedTimers);
-  };
+    const updatedTimers = updateTimersInCategory(timers, category, 'pause')
+    setTimers(updatedTimers)
+    saveTimers(updatedTimers)
+  }
 
   const resetCategoryTimers = (category: string) => {
-    const updatedTimers = timers.map(timer =>
-      timer.category === category
-        ? {
-          ...timer,
-          status: 'paused' as const,
-          remainingTime: timer.duration,
-          alerts: timer.alerts.map(alert => ({ ...alert, triggered: false }))
-        }
-        : timer
-    );
-    saveTimers(updatedTimers);
-  };
+    const updatedTimers = updateTimersInCategory(timers, category, 'reset')
+    setTimers(updatedTimers)
+    saveTimers(updatedTimers)
+  }
+
+  const loadHistory = async () => {
+    const loadedHistory = await loadHistoryFromStorage()
+    setHistory(loadedHistory)
+  }
+
+  const loadTimers = async () => {
+    const loadedTimers = await loadTimersFromStorage()
+    setTimers(loadedTimers)
+  }
+
+  useEffect(() => {
+    loadTimers();
+    loadHistory();
+  }, []);
 
   return (
     <TimerContext.Provider value={{
