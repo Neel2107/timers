@@ -1,13 +1,16 @@
 import CreateTimerSheet from '@/components/CreateTimerSheet'
 import { CompletionModal } from '@/components/timer/CompletionModal'
 import TimerList from '@/components/timer/TimerList'
+import { predefinedCategories } from '@/constants/categories'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet'
 import { StatusBar } from 'expo-status-bar'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
+import Animated, { FadeIn } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
@@ -16,19 +19,20 @@ const HomeScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null)
   const [isOpen, setIsOpen] = useState(false)
   const { showCompletionModal, setShowCompletionModal, completedTimerName, timers, updateRemainingTime } = useTimers()
-  
+
   const timerIntervalsRef = useRef<{ [key: number]: NodeJS.Timeout }>({})
   const lastTicksRef = useRef<{ [key: number]: number }>({})
+  const snapPoints = useMemo(() => ['90%'], [])
 
   useEffect(() => {
     // Create a separate interval for each running timer
     const runningTimers = timers.filter(timer => timer.status === 'running' && timer.remainingTime > 0)
-    
+
     runningTimers.forEach(timer => {
       // Only create new interval if one doesn't exist
       if (!timerIntervalsRef.current[timer.id]) {
         lastTicksRef.current[timer.id] = Date.now()
-        
+
         timerIntervalsRef.current[timer.id] = setInterval(() => {
           const now = Date.now()
           const lastTick = lastTicksRef.current[timer.id]
@@ -83,7 +87,9 @@ const HomeScreen = () => {
           My Timers
         </Text>
 
+
         <TimerList />
+
 
         {/* Floating Action Button */}
         <TouchableOpacity
@@ -110,13 +116,14 @@ const HomeScreen = () => {
           timerName={completedTimerName}
         />
       </View>
-      <CreateTimerSheet
-        bottomSheetRef={bottomSheetRef}
-        isOpen={isOpen}
-        onClose={handleCloseSheet}
 
-      />
 
+<CreateTimerSheet
+bottomSheetRef={bottomSheetRef}
+isOpen={isOpen}
+onClose={handleCloseSheet}
+
+/>
 
     </SafeAreaView>
   )

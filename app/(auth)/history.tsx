@@ -37,9 +37,6 @@ const HistoryScreen = () => {
     loadHistory();
   }, [])
 
-
-  // console.log("Histry", history.length)
-
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <View className="p-4">

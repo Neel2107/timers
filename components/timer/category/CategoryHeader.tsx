@@ -167,4 +167,4 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
   )
 }
 
-export default React.memo(CategoryHeader)
+export default CategoryHeader

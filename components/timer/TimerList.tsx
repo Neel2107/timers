@@ -165,4 +165,4 @@ const TimerList = () => {
   )
 }
 
-export default React.memo(TimerList)
+export default TimerList

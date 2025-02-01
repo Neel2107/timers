@@ -1,7 +1,7 @@
 import { useTheme } from '@/context/ThemeContext'
-import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
-import React, { useEffect } from 'react'
+import LottieView from 'lottie-react-native'
+import React, { useEffect, useRef } from 'react'
 import { Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import Animated, {
   FadeIn,
@@ -16,6 +16,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated'
 
+
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
 interface CompletionModalProps {
@@ -28,6 +29,8 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
   const { isDark } = useTheme()
   const scale = useSharedValue(1)
   const rotation = useSharedValue(0)
+  const animation = useRef<LottieView>(null);
+
 
   useEffect(() => {
     if (isVisible) {
@@ -63,7 +66,7 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
       onRequestClose={onClose}
     >
       <TouchableOpacity
-        
+
         className='flex-1 items-center justify-center bg-black/50'
         onPress={onClose}
       >
@@ -74,17 +77,18 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
             className={`p-6  rounded-3xl ${isDark ? 'bg-slate-800' : 'bg-white'}`}
           >
             <View className="items-center h-96 w-96 ">
-              <Animated.View
-                style={iconStyle}
-                className={`w-44 h-4w-44 rounded-2xl items-center justify-center mb-6 ${isDark ? 'bg-indigo-500/10' : 'bg-indigo-50'
-                  }`}
-              >
-                <Feather
-                  name="check-circle"
-                  size={48}
-                  color={isDark ? '#818cf8' : '#6366f1'}
+              <View className="flex items-center justify-center">
+                <LottieView
+                  autoPlay
+                  ref={animation}
+                  source={require('@assets/animations/timers-congo.json')}
+                  style={{
+                    width: 160,
+                    height: 100,
+                    backgroundColor: 'transparent',
+                  }}
                 />
-              </Animated.View>
+              </View>
 
               <Animated.Text
                 entering={FadeIn.delay(300)}

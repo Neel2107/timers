@@ -23,7 +23,7 @@ interface TimerCardProps {
   progressPercentage: number;
 }
 
-const TimerCard = React.memo(({ timer, index, onPlayPause, onReset, progressPercentage }: TimerCardProps) => {
+const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: TimerCardProps) => {
   const { isDark } = useTheme()
 
   const progress = useDerivedValue(() => {
@@ -154,6 +154,6 @@ const TimerCard = React.memo(({ timer, index, onPlayPause, onReset, progressPerc
 
     </Animated.View >
   )
-})
+}
 
 export default TimerCard

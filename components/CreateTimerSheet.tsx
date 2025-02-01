@@ -3,12 +3,12 @@ import { Feather } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import * as Haptics from 'expo-haptics';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTimers } from '../context/TimerContext';
-import { BackHandler } from 'react-native'
+import { predefinedCategories } from '@/constants/categories';
 
-const predefinedCategories = ['Workout', 'Study', 'Break', 'Meditation', 'Custom'];
+
 
 interface CreateTimerSheetProps {
   bottomSheetRef: React.RefObject<BottomSheet>;
