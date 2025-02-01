@@ -1,7 +1,9 @@
+import TimerCard from '@/components/TimerCard'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
+import { dummyTimers } from '@/data/dummyTimers'
 import { exportHistoryToJSON } from '@/utils/exportHistory'
-import { Feather, Ionicons } from '@expo/vector-icons'
+import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import React from 'react'
 import { Alert, Text, TouchableOpacity, View } from 'react-native'
@@ -127,9 +129,7 @@ const SettingsScreen = () => {
               </View>
             </TouchableOpacity>
           </View>
-          
 
-         
         </View>
       </View>
     </SafeAreaView>

@@ -60,10 +60,8 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
   return (
     <Animated.View
       layout={LinearTransition.springify().damping(14)}
-      className={` p-4 rounded-2xl border gap-5 ${isDark
-        ? 'bg-slate-800 border-slate-700'
-        : 'bg-white border-slate-200'
-        }`}
+      className={"gap-5"}
+     
     >
       <TouchableOpacity
         onPress={onToggle}
@@ -105,7 +103,7 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
         <Animated.View
           entering={FadeIn.delay(100)}
           layout={LinearTransition.damping(14)}
-          className="flex-row gap-2 mt-2"
+          className="flex-row gap-2 "
         >
           <TouchableOpacity
             onPress={() => handleAction('start')}

@@ -5,7 +5,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { RefreshControl, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
 import { useTimers } from '../context/TimerContext'
-import { CategoryActions } from './CategoryActions'
 import CategoryHeader from './CategoryHeader'
 import TimerCard from './TimerCard'
 
@@ -42,39 +41,6 @@ const TimerList = () => {
     setRefreshing(false)
   }, [loadTimers])
 
-  const renderCategory = useCallback(({ category, timers }: { category: string, timers: Timer[] }) => {
-    const isExpanded = expandedCategories.includes(category);
-    return (
-      <Animated.View
-        className="mb-3"
-        entering={FadeInUp.duration(400).springify().damping(14)}
-        exiting={FadeOut.duration(300)}
-        layout={LinearTransition.damping(14)}
-      >
-        <CategoryHeader
-          category={category}
-          count={timers.length}
-          isExpanded={isExpanded}
-          onToggle={() => toggleCategory(category)}
-        />
-
-      
-
-        {isExpanded && (
-          <View className="mt-2 gap-2 px-1">
-            {timers.map((timer, index) => (
-              <TimerCard
-                key={timer.id}
-                timer={timer}
-                index={index}
-              />
-            ))}
-          </View>
-        )}
-      </Animated.View>
-    );
-  }, [isDark, expandedCategories, toggleCategory]);
-
   const EmptyComponent = useCallback(() => (
     <Animated.View
       entering={FadeIn.duration(500)}
@@ -100,6 +66,44 @@ const TimerList = () => {
     </Animated.View>
   ), [isDark])
 
+  const renderCategory = useCallback(({ category, timers }: { category: string, timers: Timer[] }) => {
+    const isExpanded = expandedCategories.includes(category);
+    return (
+      <Animated.View
+        entering={FadeInUp.duration(400).springify().damping(14)}
+        exiting={FadeOut.duration(300)}
+        layout={LinearTransition.damping(14)}
+        className={` p-4 rounded-2xl border gap-5 ${isDark
+          ? 'bg-slate-800 border-slate-700'
+          : 'bg-white border-slate-200'
+          }`}
+      >
+        <View >
+
+          <CategoryHeader
+            category={category}
+            count={timers.length}
+            isExpanded={isExpanded}
+            onToggle={() => toggleCategory(category)}
+          />
+        </View>
+
+        {isExpanded && (
+          <View className="mt-2 gap-2 px-1">
+            {timers.map((timer, index) => (
+              <TimerCard
+                key={timer.id}
+                timer={timer}
+                index={index}
+              />
+            ))}
+          </View>
+        )}
+      </Animated.View>
+    );
+  }, [isDark, expandedCategories, toggleCategory]);
+
+
   return (
     <Animated.FlatList
       itemLayoutAnimation={LinearTransition.damping(14)}
@@ -112,6 +116,7 @@ const TimerList = () => {
           flexGrow: 1,
           paddingBottom: 100,
           paddingHorizontal: 4,
+          gap: 10
         },
         timers.length === 0 && { flex: 1 }
       ]}
