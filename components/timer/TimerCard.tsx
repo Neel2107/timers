@@ -1,8 +1,7 @@
 import { useTheme } from '@/context/ThemeContext'
 import type { Timer } from '@/context/TimerContext'
-import { useTimers } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React from 'react'
 import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Animated, {
@@ -11,44 +10,21 @@ import Animated, {
   interpolateColor,
   LinearTransition,
   useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue
+  useDerivedValue
 } from 'react-native-reanimated'
 import { TimerProgress } from './TimerProgress'
-
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
 
 interface TimerCardProps {
   timer: Timer;
   index: number;
+  onPlayPause: (id: number) => void;
+  onReset: (id: number) => void;
+  progressPercentage: number;
 }
 
-const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
+const TimerCard = React.memo(({ timer, index, onPlayPause, onReset, progressPercentage }: TimerCardProps) => {
   const { isDark } = useTheme()
-  const { startTimer, pauseTimer, resetTimer, updateRemainingTime } = useTimers()
-  const scale = useSharedValue(1)
-  const intervalRef = useRef<NodeJS.Timeout>()
-  const lastTickRef = useRef<number>(Date.now())
-
-
-
-
-  const handlePlayPause = useCallback(() => {
-    if (timer.status === 'running') {
-      pauseTimer(timer.id)
-    } else {
-      startTimer(timer.id)
-    }
-  }, [timer.status, timer.id, startTimer, pauseTimer])
-
-  const handleReset = useCallback(() => {
-    resetTimer(timer.id)
-  }, [timer.id, resetTimer])
-
-  const progressPercentage = useDerivedValue(() =>
-    Math.round((1 - timer.remainingTime / timer.duration) * 100)
-  )
 
   const progress = useDerivedValue(() => {
     return 1 - timer.remainingTime / timer.duration
@@ -62,46 +38,20 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
       progress.value,
       [0, 0.3, 0.7, 1],
       isDark
-        ? ['#818cf8', '#84cc16', '#f97316', '#ef4444']  // Reversed color order
-        : ['#6366f1', '#65a30d', '#ea580c', '#dc2626']  // Reversed color order
+        ? ['#818cf8', '#84cc16', '#f97316', '#ef4444']
+        : ['#6366f1', '#65a30d', '#ea580c', '#dc2626']
     )
   })
 
-  const progressStyle = useAnimatedStyle(() => ({
-    width: `${progress.value * 100}%`,  // Using progress directly now
-    backgroundColor: progressColor.value,
-    borderRadius: 10,
-    height: 8,
-  }))
-  console.log("progres percentage", progressPercentage.value)
-
-  useEffect(() => {
-    if (timer.status === 'running' && timer.remainingTime > 0) {
-      lastTickRef.current = Date.now()
-
-      intervalRef.current = setInterval(() => {
-        const now = Date.now()
-        const drift = now - lastTickRef.current
-        const tickCount = Math.floor(drift / 1000)
-
-        if (tickCount >= 1) {
-          const newRemainingTime = Math.max(0, timer.remainingTime - tickCount)
-          updateRemainingTime(timer.id, newRemainingTime)
-          lastTickRef.current = now - (drift % 1000)
-        }
-      }, 100)
+  const progressStyle = useAnimatedStyle(() => {
+    const progress = (1 - timer.remainingTime / timer.duration) * 100;
+    return {
+      width: `${progress}%`,
+      backgroundColor: progressColor.value,
+      borderRadius: 10,
+      height: 8,
     }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = undefined
-      }
-    }
-  }, [timer.status, timer.id, updateRemainingTime])
-
-
-  console.log("remaining time", timer.remainingTime)
+  })
 
   return (
     <Animated.View
@@ -158,7 +108,7 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
                 : 'bg-slate-100'
               }`}
             activeOpacity={0.7}
-            onPress={handlePlayPause}
+            onPress={() => onPlayPause(timer.id)}
             disabled={timer.status === 'completed'}
             style={{
               shadowColor: timer.status === 'running' ? '#818cf8' : 'transparent',
@@ -179,7 +129,7 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
             className={`w-10 h-10 rounded-xl items-center justify-center ${isDark ? 'bg-slate-700/50' : 'bg-slate-100'
               }`}
             activeOpacity={0.7}
-            onPress={handleReset}
+            onPress={() => onReset(timer.id)}
             disabled={timer.status === 'completed' && timer.remainingTime === 0}
           >
             <Feather
@@ -195,7 +145,7 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
 
         <TimerProgress
           status={timer.status}
-          progressPercentage={progressPercentage.value}
+          progressPercentage={progressPercentage}
           remainingTime={timer.remainingTime}
           progressStyle={progressStyle}
         />

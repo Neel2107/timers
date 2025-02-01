@@ -6,7 +6,7 @@ import { useTimers } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet'
 import { StatusBar } from 'expo-status-bar'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -15,8 +15,52 @@ const HomeScreen = () => {
   const { isDark } = useTheme()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const [isOpen, setIsOpen] = useState(false)
-  const { showCompletionModal, setShowCompletionModal, completedTimerName } = useTimers()
+  const { showCompletionModal, setShowCompletionModal, completedTimerName, timers, updateRemainingTime } = useTimers()
+  
+  const timerIntervalsRef = useRef<{ [key: number]: NodeJS.Timeout }>({})
+  const lastTicksRef = useRef<{ [key: number]: number }>({})
 
+  useEffect(() => {
+    // Create a separate interval for each running timer
+    const runningTimers = timers.filter(timer => timer.status === 'running' && timer.remainingTime > 0)
+    
+    runningTimers.forEach(timer => {
+      // Only create new interval if one doesn't exist
+      if (!timerIntervalsRef.current[timer.id]) {
+        lastTicksRef.current[timer.id] = Date.now()
+        
+        timerIntervalsRef.current[timer.id] = setInterval(() => {
+          const now = Date.now()
+          const lastTick = lastTicksRef.current[timer.id]
+          const drift = now - lastTick
+          const tickCount = Math.floor(drift / 1000)
+
+          if (tickCount >= 1) {
+            const newRemainingTime = Math.max(0, timer.remainingTime - tickCount)
+            updateRemainingTime(timer.id, newRemainingTime)
+            lastTicksRef.current[timer.id] = now - (drift % 1000)
+          }
+        }, 100)
+      }
+    })
+
+    // Cleanup intervals for non-running timers
+    Object.keys(timerIntervalsRef.current).forEach(timerId => {
+      const id = parseInt(timerId)
+      if (!runningTimers.find(t => t.id === id)) {
+        clearInterval(timerIntervalsRef.current[id])
+        delete timerIntervalsRef.current[id]
+        delete lastTicksRef.current[id]
+      }
+    })
+
+    return () => {
+      // Cleanup all intervals on unmount
+      Object.values(timerIntervalsRef.current).forEach(interval => clearInterval(interval))
+      timerIntervalsRef.current = {}
+      lastTicksRef.current = {}
+    }
+  }, [timers, updateRemainingTime])
 
   const handleCloseSheet = useCallback(() => {
     Keyboard.dismiss() // Dismiss keyboard when sheet closes

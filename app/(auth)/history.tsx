@@ -102,13 +102,16 @@ const HistoryScreen = () => {
                 <FlatList
                   data={history}
                   renderItem={({ item }) => <HistoryItem item={item} />}
+                  contentContainerStyle={{
+                    paddingBottom: 600,
+                  }}
                   keyExtractor={(item) => item.id.toString()}
                   showsVerticalScrollIndicator={false}
                 />
               </>
             ) : (
               <View>
-              <EmptyHistory />
+                <EmptyHistory />
               </View>
             )}
           </View>

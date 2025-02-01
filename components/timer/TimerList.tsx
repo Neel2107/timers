@@ -11,9 +11,18 @@ import TimerCard from './TimerCard'
 
 const TimerList = () => {
   const { isDark } = useTheme()
-  const { timers, loadTimers } = useTimers()
+  const { timers, loadTimers, startTimer, pauseTimer, resetTimer } = useTimers()
   const [refreshing, setRefreshing] = React.useState(false)
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
+
+  const handlePlayPause = useCallback((id: number) => {
+    const timer = timers.find(t => t.id === id);
+    if (timer?.status === 'running') {
+      pauseTimer(id);
+    } else {
+      startTimer(id);
+    }
+  }, [timers, startTimer, pauseTimer]);
 
   // Group timers by category
   const groupedTimers = useMemo(() => {
@@ -41,6 +50,17 @@ const TimerList = () => {
     setRefreshing(false)
   }, [loadTimers])
 
+
+  const handleReset = useCallback((id: number) => {
+    resetTimer(id);
+  }, [resetTimer]);
+
+  const getProgressPercentage = useCallback((timer: Timer) => {
+    return Math.round((1 - timer.remainingTime / timer.duration) * 100);
+  }, []);
+
+
+
   const EmptyComponent = useCallback(() => (
     <Animated.View
       entering={FadeIn.duration(500)}
@@ -65,6 +85,7 @@ const TimerList = () => {
       </Text>
     </Animated.View>
   ), [isDark])
+
 
   const renderCategory = useCallback(({ category, timers }: { category: string, timers: Timer[] }) => {
     const isExpanded = expandedCategories.includes(category);
@@ -95,14 +116,16 @@ const TimerList = () => {
                 key={timer.id}
                 timer={timer}
                 index={index}
+                onPlayPause={handlePlayPause}
+                onReset={handleReset}
+                progressPercentage={getProgressPercentage(timer)}
               />
             ))}
           </View>
         )}
       </Animated.View>
     );
-  }, [isDark, expandedCategories, toggleCategory]);
-
+  }, [expandedCategories, handlePlayPause, handleReset, getProgressPercentage]);
 
   return (
     <Animated.FlatList
