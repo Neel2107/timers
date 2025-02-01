@@ -1,16 +1,13 @@
 import CreateTimerSheet from '@/components/CreateTimerSheet'
 import { CompletionModal } from '@/components/timer/CompletionModal'
 import TimerList from '@/components/timer/TimerList'
-import { predefinedCategories } from '@/constants/categories'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet'
 import { StatusBar } from 'expo-status-bar'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native'
-import { TextInput } from 'react-native-gesture-handler'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
@@ -22,7 +19,6 @@ const HomeScreen = () => {
 
   const timerIntervalsRef = useRef<{ [key: number]: NodeJS.Timeout }>({})
   const lastTicksRef = useRef<{ [key: number]: number }>({})
-  const snapPoints = useMemo(() => ['90%'], [])
 
   useEffect(() => {
     // Create a separate interval for each running timer
@@ -78,12 +74,13 @@ const HomeScreen = () => {
   }, [])
 
 
+
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
 
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <View className="px-4 flex-1">
-        <Text className={`text-2xl  pt-4 font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
+        <Text className={`text-2xl  pt-4 font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>
           My Timers
         </Text>
 
@@ -118,12 +115,12 @@ const HomeScreen = () => {
       </View>
 
 
-<CreateTimerSheet
-bottomSheetRef={bottomSheetRef}
-isOpen={isOpen}
-onClose={handleCloseSheet}
+      <CreateTimerSheet
+        bottomSheetRef={bottomSheetRef}
+        isOpen={isOpen}
+        onClose={handleCloseSheet}
 
-/>
+      />
 
     </SafeAreaView>
   )

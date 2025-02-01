@@ -27,11 +27,11 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
   const { isDark } = useTheme()
 
   const progress = useDerivedValue(() => {
-    return 1 - timer.remainingTime / timer.duration
-  })
-
+    return timer ? 1 - (timer.remainingTime / timer.duration) : 0
+  }, [timer.remainingTime, timer.duration])
+  // Force re-render when theme changes
   const progressColor = useDerivedValue(() => {
-    if (timer.status === 'completed') {
+    if (!timer || timer.status === 'completed') {
       return isDark ? '#818cf8' : '#6366f1'
     }
     return interpolateColor(
@@ -41,17 +41,18 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
         ? ['#818cf8', '#84cc16', '#f97316', '#ef4444']
         : ['#6366f1', '#65a30d', '#ea580c', '#dc2626']
     )
-  })
+  }, [isDark, timer.status])
+
 
   const progressStyle = useAnimatedStyle(() => {
-    const progress = (1 - timer.remainingTime / timer.duration) * 100;
+    const progressWidth = timer ? (1 - timer.remainingTime / timer.duration) * 100 : 0;
     return {
-      width: `${progress}%`,
+      width: `${progressWidth}%`,
       backgroundColor: progressColor.value,
       borderRadius: 10,
       height: 8,
     }
-  })
+  }, [timer.remainingTime, timer.duration])
 
   return (
     <Animated.View

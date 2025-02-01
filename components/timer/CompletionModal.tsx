@@ -6,8 +6,6 @@ import { Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'r
 import Animated, {
   FadeIn,
   FadeOut,
-  SlideInDown,
-  SlideOutDown,
   useSharedValue,
   withRepeat,
   withSequence,
@@ -73,6 +71,7 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
                 <LottieView
                   autoPlay
                   ref={animation}
+                  loop={false}
                   source={
                     isDark ? require('@assets/animations/timers-congo.json') :
                       require('@assets/animations/timers-congo-light.json')}

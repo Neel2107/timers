@@ -1,3 +1,4 @@
+import { predefinedCategories } from '@/constants/categories'
 import { GITHUB_URL, LINKDIN_URL, PORTFOLIO_URL, RESUME_URL } from '@/constants/urls'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
@@ -5,7 +6,8 @@ import { exportHistoryToJSON } from '@/utils/exportHistory'
 import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import React from 'react'
-import { Alert, Linking, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import { Alert, Linking, ScrollView, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import Animated, { FadeIn } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
@@ -46,8 +48,16 @@ const SettingsScreen = () => {
   }
 
 
+  const selectedCategory = null
+  const onSelectCategory = (category: string | null) => {
+    // setSelectedCategory(category)
+  }
+
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+
+
+    
       <View className="p-4">
         <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
           Settings
@@ -56,7 +66,7 @@ const SettingsScreen = () => {
           {/* Links Section */}
           <View className="mb-4">
             <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-            My Link
+              My Link
             </Text>
             <View className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
               <TouchableOpacity
