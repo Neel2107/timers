@@ -57,14 +57,22 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     loadTimers();
     loadHistory();
   }, []);
+
   const loadTimers = async () => {
     try {
       const savedTimers = await AsyncStorage.getItem('timers')
       if (savedTimers) {
-        setTimers(JSON.parse(savedTimers))
+        const parsedTimers = JSON.parse(savedTimers)
+        // Add validation to ensure we don't load invalid timer data
+        if (Array.isArray(parsedTimers)) {
+          setTimers(parsedTimers)
+        } else {
+          setTimers([])
+        }
       }
     } catch (error) {
       console.error('Error loading timers:', error)
+      setTimers([]) // Ensure timers are cleared on error
     }
   }
 
@@ -168,10 +176,21 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   // Add clear history function
   const clearHistory = async () => {
     try {
-      await AsyncStorage.removeItem('timer_history');
+      // Clear both history and timers
+      await Promise.all([
+        AsyncStorage.removeItem('timer_history'),
+        AsyncStorage.removeItem('timers')
+      ]);
+      
+      // Reset states
       setHistory([]);
+      setTimers([]);
+      
+      // Force reload timers and history
+      await loadTimers();
+      await loadHistory();
     } catch (error) {
-      console.error('Error clearing history:', error);
+      console.error('Error clearing history and timers:', error);
     }
   };
 

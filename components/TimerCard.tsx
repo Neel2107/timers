@@ -118,7 +118,7 @@ const TimerCard = React.memo(({ timer, index }: TimerCardProps) => {
     <AnimatedTouchable
       entering={FadeInUp.duration(400).delay(index * 50).springify()}
       exiting={FadeOutUp.duration(300)}
-      layout={LinearTransition.springify()}
+      // layout={LinearTransition.springify()}
       style={[
         {
           shadowColor: isDark ? '#000' : '#64748b',
