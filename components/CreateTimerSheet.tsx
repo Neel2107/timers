@@ -5,9 +5,10 @@ import { Feather } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import * as Haptics from 'expo-haptics';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, BackHandler, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { BackHandler, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import { useTimers } from '../context/TimerContext';
+import AnimatedError from './Error/AnimatedError';
 import { AlertSection } from './timer/AlertSection';
 
 
@@ -16,8 +17,6 @@ interface CreateTimerSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-
 
 const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetProps) => {
   const { isDark } = useTheme()
@@ -28,7 +27,56 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
   const [alerts, setAlerts] = useState<TimerAlert[]>([]);
   const [showCustomCategory, setShowCustomCategory] = useState(false);
 
+  const [nameError, setNameError] = useState('');
+  const [durationError, setDurationError] = useState('');
+  const [categoryError, setCategoryError] = useState('');
+
   const snapPoints = useMemo(() => ['90%'], [])
+
+
+  const validateName = (value: string) => {
+    if (!value.trim()) {
+      setNameError('Timer name is required');
+      return false;
+    }
+    if (value.trim().length < 3) {
+      setNameError('Timer name must be at least 3 characters');
+      return false;
+    }
+    setNameError('');
+    return true;
+  };
+
+  const validateDuration = (value: string) => {
+    const durationNum = parseInt(value);
+    if (!value) {
+      setDurationError('Duration is required');
+      return false;
+    }
+    if (isNaN(durationNum) || durationNum <= 0) {
+      setDurationError('Duration must be a positive number');
+      return false;
+    }
+    if (durationNum > 86400) { // 24 hours in seconds
+      setDurationError('Duration cannot exceed 24 hours');
+      return false;
+    }
+    setDurationError('');
+    return true;
+  };
+
+  const validateCategory = (value: string) => {
+    if (!value.trim()) {
+      setCategoryError('Category is required');
+      return false;
+    }
+    if (value === 'Custom' && !category.trim()) {
+      setCategoryError('Please enter a custom category name');
+      return false;
+    }
+    setCategoryError('');
+    return true;
+  };
 
   const resetForm = () => {
     setName('');
@@ -36,8 +84,10 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
     setCategory('');
     setAlerts([]);
     setShowCustomCategory(false);
+    setNameError('');
+    setDurationError('');
+    setCategoryError('');
   };
-
 
 
 
@@ -46,22 +96,16 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
   };
 
   const handleCreateTimer = useCallback(() => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a timer name');
+    const isNameValid = validateName(name);
+    const isDurationValid = validateDuration(duration);
+    const isCategoryValid = validateCategory(category);
+
+    if (!isNameValid || !isDurationValid || !isCategoryValid) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
     const durationNum = parseInt(duration);
-    if (isNaN(durationNum) || durationNum <= 0) {
-      Alert.alert('Error', 'Please enter a valid duration');
-      return;
-    }
-
-    if (!category) {
-      Alert.alert('Error', 'Please select a category');
-      return;
-    }
-
     addTimer({
       name: name.trim(),
       duration: durationNum,
@@ -113,8 +157,6 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
   }, [isOpen, onClose])
 
 
-
-
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -156,49 +198,68 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
               <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 Timer Name
               </Text>
-              <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
-                }`}>
-                <View className={`w-8 h-8 rounded-full items-center justify-center ${isDark ? 'bg-indigo-900/30' : 'bg-indigo-100'
+              <View className='gap-2'>
+
+
+                <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
                   }`}>
-                  <Feather
-                    name="tag"
-                    size={16}
-                    color={isDark ? '#818cf8' : '#6366f1'}
+                  <View className={`w-8 h-8 rounded-full items-center justify-center ${isDark ? 'bg-indigo-900/30' : 'bg-indigo-100'
+                    }`}>
+                    <Feather
+                      name="tag"
+                      size={16}
+                      color={isDark ? '#818cf8' : '#6366f1'}
+                    />
+                  </View>
+                  <TextInput
+                    className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
+                    placeholder="e.g., Morning Workout"
+                    placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
+                    value={name}
+                    onChangeText={setName}
                   />
+
                 </View>
-                <TextInput
-                  className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
-                  placeholder="e.g., Morning Workout"
-                  placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
-                  value={name}
-                  onChangeText={setName}
-                />
+                {nameError && (
+                  <AnimatedError
+                    alert={nameError}
+                  />
+                )}
               </View>
             </View>
 
             {/* Duration Input */}
-            <View>
+            <View className=''>
               <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 Duration
               </Text>
-              <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
-                }`}>
-                <View className={`w-8 h-8 rounded-full items-center justify-center ${isDark ? 'bg-blue-900/30' : 'bg-blue-100'
+              <View className='gap-2'>
+
+
+                <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
                   }`}>
-                  <Feather
-                    name="clock"
-                    size={16}
-                    color={isDark ? '#60a5fa' : '#3b82f6'}
+                  <View className={`w-8 h-8 rounded-full items-center justify-center ${isDark ? 'bg-blue-900/30' : 'bg-blue-100'
+                    }`}>
+                    <Feather
+                      name="clock"
+                      size={16}
+                      color={isDark ? '#60a5fa' : '#3b82f6'}
+                    />
+                  </View>
+                  <TextInput
+                    className={`flex-1 py-3 px-2  text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
+                    placeholder="Duration in seconds"
+                    placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
+                    keyboardType="numeric"
+                    value={duration}
+                    onChangeText={setDuration}
                   />
                 </View>
-                <TextInput
-                  className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
-                  placeholder="Duration in seconds"
-                  placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
-                  keyboardType="numeric"
-                  value={duration}
-                  onChangeText={setDuration}
-                />
+                {durationError && (
+                  <AnimatedError
+                    alert={durationError}
+                  />
+                )}
               </View>
             </View>
 
@@ -217,35 +278,44 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
               <Text className={`text-base font-medium mb-3 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 Category
               </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {predefinedCategories.map((cat) => (
-                  <TouchableOpacity
-                    key={cat}
-                    onPress={() => handleCategoryPress(cat)}
-                    className={`px-4 py-2.5 rounded-full border ${category === cat
+              <View className='gap-2'>
+
+
+                <View className="flex-row flex-wrap gap-2">
+                  {predefinedCategories.map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      onPress={() => handleCategoryPress(cat)}
+                      className={`px-4 py-2.5 rounded-full border ${category === cat
                         ? isDark
                           ? 'bg-indigo-500/10 border-indigo-500/20'
                           : 'bg-indigo-50 border-indigo-100'
                         : isDark
                           ? 'bg-slate-800/50 border-slate-700'
                           : 'bg-slate-50 border-slate-200'
-                      }`}
-                    activeOpacity={0.7}
-                  >
-                    <Text
-                      className={`text-sm font-medium ${category === cat
+                        }`}
+                      activeOpacity={0.7}
+                    >
+                      <Text
+                        className={`text-sm font-medium ${category === cat
                           ? isDark
                             ? 'text-indigo-400'
                             : 'text-indigo-600'
                           : isDark
                             ? 'text-slate-400'
                             : 'text-slate-600'
-                        }`}
-                    >
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                          }`}
+                      >
+                        {cat}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {categoryError && (
+                  <AnimatedError
+                    alert={categoryError}
+                  />
+                )}
               </View>
               {showCustomCategory && (
                 <View className={`mt-3 flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'

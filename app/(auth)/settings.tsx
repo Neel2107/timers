@@ -55,8 +55,8 @@ const SettingsScreen = () => {
         <View className="gap-4">
           {/* Links Section */}
           <View className="mb-4">
-            <Text className={`text-base font-medium mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            MY LINKS
+            <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            My Link
             </Text>
             <View className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
               <TouchableOpacity
@@ -127,8 +127,8 @@ const SettingsScreen = () => {
 
           {/* Existing Appearance Section */}
           <View className="mb-4">
-            <Text className={`text-base font-medium mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              APPEARANCE
+            <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              Appearance
             </Text>
             <View className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
               <View className={`p-4 flex-row items-center justify-between border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
@@ -164,8 +164,8 @@ const SettingsScreen = () => {
           </View>
 
           <View className="mb-4">
-            <Text className={`text-base font-medium mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              DATA MANAGEMENT
+            <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              Data Management
             </Text>
             <View className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
               <TouchableOpacity

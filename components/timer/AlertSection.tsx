@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition, useAnimatedStyle, useDerivedValue, useSharedValue, withSpring } from 'react-native-reanimated';
+import AnimatedError from '../Error/AnimatedError';
 
 interface AlertSectionProps {
     alerts: TimerAlert[];
@@ -21,17 +22,39 @@ export const AlertSection = ({ alerts, onAddAlert, onRemoveAlert }: AlertSection
     const { isDark } = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
     const [alertPercentage, setAlertPercentage] = useState('');
+    const [alertError, setAlertError] = useState('');
     const rotateZ = useSharedValue(0)
 
     const handleAddAlert = () => {
         const percentage = parseInt(alertPercentage);
-        if (percentage > 0 && percentage < 100) {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            onAddAlert(percentage);
-            setAlertPercentage('');
-        }
-    };
 
+        // Validate the input
+        if (!alertPercentage) {
+            setAlertError('Please enter a percentage');
+            return;
+        }
+
+        if (isNaN(percentage)) {
+            setAlertError('Please enter a valid number');
+            return;
+        }
+
+        if (percentage <= 0 || percentage >= 100) {
+            setAlertError('Percentage must be between 1 and 99');
+            return;
+        }
+
+        if (alerts.some(alert => alert.percentage === percentage)) {
+            setAlertError('This percentage alert already exists');
+            return;
+        }
+
+        // Clear error and add alert
+        setAlertError('');
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onAddAlert(percentage);
+        setAlertPercentage('');
+    };
     useEffect(() => {
         rotateZ.value = withSpring(isExpanded ? 180 : 0, {
             damping: 15,
@@ -150,6 +173,14 @@ export const AlertSection = ({ alerts, onAddAlert, onRemoveAlert }: AlertSection
                             <Feather name="plus" size={20} color="white" />
                         </TouchableOpacity>
                     </View>
+
+
+                    {alertError && (
+                        <AnimatedError
+                            alert={alertError}
+                        />
+                    )}
+
 
                     {alerts.length > 0 && (
                         <Animated.View
