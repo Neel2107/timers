@@ -142,7 +142,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     saveTimers(updatedTimers)
   }
 
-  const resetTimer = (id: number) => {
+  const resetTimer = async (id: number) => {
     const updatedTimers = timers.map(timer =>
       timer.id === id ? {
         ...timer,
@@ -151,7 +151,8 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         alerts: timer.alerts.map(alert => ({ ...alert, triggered: false }))
       } : timer
     )
-    saveTimers(updatedTimers)
+    setTimers(updatedTimers)
+    await saveTimers(updatedTimers)
   }
 
   const updateTimerStatus = (id: number, status: Timer['status']) => {
@@ -161,89 +162,118 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     saveTimers(updatedTimers)
   }
 
-  const checkAlerts = (timer: Timer) => {
+  const checkAlerts = async (timer: Timer) => {
+    if (!timer.alerts || timer.status !== 'running') {
+      console.log('Alert check skipped:', {
+        reason: !timer.alerts ? 'No alerts' : 'Timer not running',
+        timerStatus: timer.status,
+        alertsCount: timer.alerts?.length
+      });
+      return;
+    }
+
     const currentPercentage = ((timer.duration - timer.remainingTime) / timer.duration) * 100;
 
-    // Sort alerts by percentage and find the first untriggered alert that has been reached
-    const sortedAlerts = [...timer.alerts].sort((a, b) => a.percentage - b.percentage);
-    const nextAlert = sortedAlerts.find(
-      alert => !alert.triggered && currentPercentage >= alert.percentage
-    );
+    // Get the current timer with latest state
+    const currentTimer = timers.find(t => t.id === timer.id);
+    if (!currentTimer) return;
+
+    // Find the next untriggered alert that should be triggered
+    const nextAlert = currentTimer.alerts
+      .filter(alert => !alert.triggered && currentPercentage >= alert.percentage)
+      .sort((a, b) => a.percentage - b.percentage)[0];
+
+    console.log('Alert Status:', {
+      currentPercentage: currentPercentage.toFixed(2) + '%',
+      nextAlert: nextAlert?.percentage,
+      allAlerts: currentTimer.alerts.map(a => ({
+        percentage: a.percentage,
+        triggered: a.triggered
+      }))
+    });
 
     if (nextAlert) {
-      // Enhanced haptic feedback
-      Haptics.notificationAsync(
+      console.log('Triggering Alert:', {
+        percentage: nextAlert.percentage,
+        timerName: timer.name
+      });
+
+      // Trigger haptic feedback
+      await Haptics.notificationAsync(
         nextAlert.percentage === 100
           ? Haptics.NotificationFeedbackType.Success
           : Haptics.NotificationFeedbackType.Warning
       );
 
-      // Use ToastAndroid instead of Alert
+      // Show toast notification
       ToastAndroid.show(
-        `${timer.name} is at ${nextAlert.percentage}% completion!`,
+        `${timer.name} is ${nextAlert.percentage}% complete!`,
         ToastAndroid.SHORT
       );
 
-      // Create updated timer with the triggered alert
-      const updatedTimer = {
-        ...timer,
-        alerts: timer.alerts.map(alert =>
-          alert.percentage === nextAlert.percentage
-            ? { ...alert, triggered: true }
-            : alert
-        )
-      };
+      // Update the alerts state
+      const updatedTimers = timers.map(t => {
+        if (t.id === timer.id) {
+          return {
+            ...t,
+            alerts: t.alerts.map(alert => ({
+              ...alert,
+              triggered: alert.triggered || alert.percentage === nextAlert.percentage
+            }))
+          };
+        }
+        return t;
+      });
 
-      // Update the timer in state
-      const updatedTimers = timers.map(t =>
-        t.id === timer.id ? updatedTimer : t
-      );
-      saveTimers(updatedTimers);
+      // Update state synchronously
+      setTimers(updatedTimers);
+      await saveTimers(updatedTimers);
     }
   };
 
-  // Update the updateRemainingTime function to add completed timers to history
-  const updateRemainingTime = (id: number, time: number) => {
-    const updatedTimers = timers.map(timer => {
-      if (timer.id === id) {
-        const remainingTime = Math.max(0, time);
-        const status = remainingTime === 0 ? 'completed' : timer.status;
+  const updateRemainingTime = async (id: number, time: number) => {
+    const timer = timers.find(t => t.id === id);
+    if (!timer) return;
 
-        // Create updatedTimer with proper alert state preservation
+    const remainingTime = Math.max(0, time);
+    const status = remainingTime === 0 ? 'completed' : timer.status;
+
+    // Update timer state first
+    const updatedTimers = timers.map(t => {
+      if (t.id === id) {
         const updatedTimer = {
-          ...timer,
+          ...t,
           remainingTime,
-          status,
-          alerts: timer.alerts.map(alert => ({
-            ...alert,
-            triggered: alert.triggered || ((timer.duration - remainingTime) / timer.duration) * 100 >= alert.percentage
-          }))
+          status
         };
 
-        // Check alerts with the updated timer state
-        if (updatedTimer.alerts.length > 0 && status === 'running') {
-          checkAlerts(updatedTimer);
-        }
-
-        // Completion logic
-        if (remainingTime === 0 && timer.status !== 'completed') {
+        // Handle timer completion
+        if (remainingTime === 0 && t.status !== 'completed') {
           const historyItem: TimerHistoryItem = {
             id: Date.now(),
-            name: timer.name,
-            category: timer.category,
-            duration: timer.duration,
+            name: t.name,
+            category: t.category,
+            duration: t.duration,
             completedAt: new Date().toISOString(),
           };
           saveHistory([...history, historyItem]);
           setShowCompletionModal(true);
-          setCompletedTimerName(timer.name);
+          setCompletedTimerName(t.name);
         }
 
         return updatedTimer;
       }
-      return timer;
+      return t;
     });
-    saveTimers(updatedTimers);
+
+    // Update state synchronously
+    setTimers(updatedTimers);
+    await saveTimers(updatedTimers);
+
+    // Check alerts after state is updated
+    if (status === 'running') {
+      await checkAlerts(timer);
+    }
   };
 
   // Add clear history function
