@@ -13,12 +13,6 @@ const SettingsScreen = () => {
   const { theme, setTheme, isDark } = useTheme()
   const { history } = useTimers()
 
-  const themeOptions = [
-    { id: 'light', icon: 'sunny-outline', label: 'Light' },
-    { id: 'dark', icon: 'moon-outline', label: 'Dark' },
-    { id: 'system', icon: 'settings-outline', label: 'System' },
-  ] as const
-
   const handleExportHistory = async () => {
     if (history.length === 0) {
       ToastAndroid.show('No history to export', ToastAndroid.SHORT)

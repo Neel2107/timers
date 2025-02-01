@@ -1,1 +1,1 @@
-export const predefinedCategories = ['Workout', 'Study', 'Break', 'Meditation', 'Custom'];
+export const predefinedCategories = ['Workout', 'Study', 'Break', 'Meditation','Reading', 'Custom'];

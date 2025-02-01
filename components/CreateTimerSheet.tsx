@@ -110,11 +110,12 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
       backdropComponent={renderBackdrop}
       handleIndicatorStyle={{
         backgroundColor: isDark ? '#4b5563' : '#9ca3af',
-        width: 40,
-        height: 4
+        width: 32,
+        height: 4,
+        borderRadius: 2,
       }}
       backgroundStyle={{
-        backgroundColor: isDark ? '#1f2937' : '#ffffff'
+        backgroundColor: isDark ? '#1f2937' : '#ffffff',
       }}
     >
       <Animated.View
@@ -128,23 +129,28 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
           Set up your new timer details
         </Text>
 
-        <View className="gap-5">
+        <View className="gap-6">
           {/* Timer Name Input */}
           <View>
             <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               Timer Name
             </Text>
-            <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+            <View className={`flex-row items-center rounded-xl border px-4 ${
+              isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <View className={`w-8 h-8 rounded-full items-center justify-center ${
+                isDark ? 'bg-indigo-900/30' : 'bg-indigo-100'
               }`}>
-              <Feather
-                name="clock"
-                size={18}
-                color={isDark ? '#9ca3af' : '#6b7280'}
-              />
+                <Feather
+                  name="tag"
+                  size={16}
+                  color={isDark ? '#818cf8' : '#6366f1'}
+                />
+              </View>
               <TextInput
-                className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-white' : 'text-black'}`}
+                className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
                 placeholder="e.g., Morning Workout"
-                placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
+                placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
                 value={name}
                 onChangeText={setName}
               />
@@ -156,12 +162,18 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
             <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               Duration
             </Text>
-            <View className={`flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-              <Feather
-                name="clock"
-                size={18}
-                color={isDark ? '#94a3b8' : '#64748b'}
-              />
+            <View className={`flex-row items-center rounded-xl border px-4 ${
+              isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <View className={`w-8 h-8 rounded-full items-center justify-center ${
+                isDark ? 'bg-blue-900/30' : 'bg-blue-100'
+              }`}>
+                <Feather
+                  name="clock"
+                  size={16}
+                  color={isDark ? '#60a5fa' : '#3b82f6'}
+                />
+              </View>
               <TextInput
                 className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
                 placeholder="Duration in seconds"
@@ -183,25 +195,27 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
                 <TouchableOpacity
                   key={cat}
                   onPress={() => handleCategoryPress(cat)}
-                  className={`px-4 py-2.5 rounded-xl border ${category === cat
-                    ? isDark
-                      ? 'bg-indigo-900 border-indigo-800'
-                      : 'bg-indigo-50 border-indigo-200'
-                    : isDark
-                      ? 'bg-slate-800 border-slate-700'
-                      : 'bg-slate-50 border-slate-200'
-                    }`}
+                  className={`px-4 py-2.5 rounded-xl border ${
+                    category === cat
+                      ? isDark
+                        ? 'bg-indigo-900 border-indigo-800'
+                        : 'bg-indigo-50 border-indigo-200'
+                      : isDark
+                        ? 'bg-slate-800 border-slate-700'
+                        : 'bg-slate-50 border-slate-200'
+                  }`}
                   activeOpacity={0.7}
                 >
                   <Text
-                    className={`text-sm font-medium ${category === cat
-                      ? isDark
-                        ? 'text-indigo-400'
-                        : 'text-indigo-600'
-                      : isDark
-                        ? 'text-slate-400'
-                        : 'text-slate-600'
-                      }`}
+                    className={`text-sm font-medium ${
+                      category === cat
+                        ? isDark
+                          ? 'text-indigo-400'
+                          : 'text-indigo-600'
+                        : isDark
+                          ? 'text-slate-400'
+                          : 'text-slate-600'
+                    }`}
                   >
                     {cat}
                   </Text>
@@ -209,12 +223,18 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
               ))}
             </View>
             {showCustomCategory && (
-              <View className={`mt-3 flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                <Feather
-                  name="tag"
-                  size={18}
-                  color={isDark ? '#94a3b8' : '#64748b'}
-                />
+              <View className={`mt-3 flex-row items-center rounded-xl border px-4 ${
+                isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <View className={`w-8 h-8 rounded-full items-center justify-center ${
+                  isDark ? 'bg-purple-900/30' : 'bg-purple-100'
+                }`}>
+                  <Feather
+                    name="folder"
+                    size={16}
+                    color={isDark ? '#a78bfa' : '#8b5cf6'}
+                  />
+                </View>
                 <TextInput
                   className={`flex-1 py-3 px-2 text-base ${isDark ? 'text-slate-50' : 'text-slate-900'}`}
                   placeholder="Enter custom category"
@@ -231,7 +251,7 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
             onPress={handleCreateTimer}
             className={`w-full py-4 rounded-xl ${isDark ? 'bg-indigo-600' : 'bg-indigo-500'}`}
             style={{
-              shadowColor: isDark ? '#60a5fa' : '#3b82f6',
+              shadowColor: isDark ? '#818cf8' : '#6366f1',
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.2,
               shadowRadius: 8,
@@ -242,8 +262,6 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
               Create Timer
             </Text>
           </TouchableOpacity>
-
-
         </View>
       </Animated.View>
     </BottomSheet>
