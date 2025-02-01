@@ -22,12 +22,19 @@ configureReanimatedLogger({
   strict: false, // Reanimated runs in strict mode by default
 });
 
+
+
+
 export const unstable_settings = {
   initialRouteName: 'index',
 };
 
 SplashScreen.preventAutoHideAsync();
 
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),

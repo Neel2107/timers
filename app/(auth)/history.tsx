@@ -114,6 +114,9 @@ const HistoryScreen = () => {
           </View>
         </View>
       </View>
+
+
+
     </SafeAreaView>
   );
 };

@@ -1,5 +1,6 @@
 import { useTheme } from '@/context/ThemeContext';
 import type { TimerHistoryItem } from '@/context/TimerContext';
+import { truncateText } from '@/utils/helpers';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import React from 'react';
@@ -31,9 +32,12 @@ export const HistoryItem = ({ item }: HistoryItemProps) => {
         </View>
         <View className="flex-1">
           <View className="flex-row items-center justify-between">
-            <Text className={`text-base font-semibold ${isDark ? 'text-slate-50' : 'text-slate-900'
-              }`}>
-              {item.name}
+            <Text
+              className={`text-base font-semibold 
+            
+            ${isDark ? 'text-slate-50' : 'text-slate-900'
+                }`}>
+              {truncateText(item.name, 40)}
             </Text>
             <Text className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'
               }`}>

@@ -43,26 +43,47 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
       setNameError('Timer name must be at least 3 characters');
       return false;
     }
+    if (value.trim().length > 50) {
+      setNameError('Timer name cannot exceed 50 characters');
+      return false;
+    }
     setNameError('');
     return true;
   };
 
   const validateDuration = (value: string) => {
-    const durationNum = parseInt(value);
     if (!value) {
       setDurationError('Duration is required');
+      return false;
+    }
+
+    // Only allow numbers
+    if (!/^\d*$/.test(value)) {
+      return false;
+    }
+
+    const durationNum = parseInt(value);
+    if (value.length > 5) {
+      setDurationError('Duration is too long');
       return false;
     }
     if (isNaN(durationNum) || durationNum <= 0) {
       setDurationError('Duration must be a positive number');
       return false;
     }
-    if (durationNum > 86400) { // 24 hours in seconds
+    if (durationNum > 86400) {
       setDurationError('Duration cannot exceed 24 hours');
       return false;
     }
     setDurationError('');
     return true;
+  };
+
+  const handleDurationChange = (value: string) => {
+    // Only allow numbers and limit length
+    if (!/^\d*$/.test(value) || value.length > 5) return;
+    setDuration(value);
+    validateDuration(value);
   };
 
   const validateCategory = (value: string) => {
@@ -216,6 +237,7 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
                     placeholder="e.g., Morning Workout"
                     placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
                     value={name}
+                    maxLength={50}
                     onChangeText={setName}
                   />
 
@@ -251,8 +273,9 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
                     placeholder="Duration in seconds"
                     placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
                     keyboardType="numeric"
+                    maxLength={5}
                     value={duration}
-                    onChangeText={setDuration}
+                    onChangeText={handleDurationChange}
                   />
                 </View>
                 {durationError && (
@@ -338,6 +361,8 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
                 </View>
               )}
             </Animated.View>
+
+
             <Animated.View
               layout={LinearTransition.damping(15)}
             >

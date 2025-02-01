@@ -13,7 +13,7 @@ interface AlertSectionProps {
     onRemoveAlert: (index: number) => void;
 }
 
-const PRESET_ALERTS = [25, 50, 75];
+const PRESET_ALERTS = [25, 50, 75, 80];
 
 
 const AnimatedFeather = Animated.createAnimatedComponent(Feather)

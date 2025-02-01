@@ -7,6 +7,7 @@ import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
 import { useTimers } from '../../context/TimerContext'
 import CategoryHeader from './category/CategoryHeader'
+import FilterHeader from './FilterHeader'
 import TimerCard from './TimerCard'
 
 
@@ -141,10 +142,13 @@ const TimerList = () => {
   return (
     <>
       <View>
-        {/* <FilterHeader
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        /> */}
+        {/* <View>
+
+          <FilterHeader
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
+        </View> */}
         <Animated.View
           entering={FadeIn.duration(300)}
           className="mb-4"
