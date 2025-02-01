@@ -70,8 +70,8 @@ const TimerList = () => {
     const isExpanded = expandedCategories.includes(category);
     return (
       <Animated.View
-        entering={FadeInUp.duration(400).springify().damping(14)}
-        exiting={FadeOut.duration(300)}
+        entering={FadeInUp.duration(100).springify().damping(14)}
+        exiting={FadeOut.duration(100)}
         layout={LinearTransition.damping(14)}
         className={` p-4 rounded-2xl border gap-5 ${isDark
           ? 'bg-slate-800 border-slate-700'
@@ -89,7 +89,7 @@ const TimerList = () => {
         </View>
 
         {isExpanded && (
-          <View className="mt-2 gap-2 px-1">
+          <View className="mt-2 gap-5 px-1">
             {timers.map((timer, index) => (
               <TimerCard
                 key={timer.id}

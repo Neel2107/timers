@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics'
 import React, { useEffect } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 import Animated, {
-  FadeIn,
+  FadeInUp,
   LinearTransition,
   useAnimatedStyle,
   useDerivedValue,
@@ -59,9 +59,10 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
 
   return (
     <Animated.View
+
       layout={LinearTransition.springify().damping(14)}
       className={"gap-5"}
-     
+
     >
       <TouchableOpacity
         onPress={onToggle}
@@ -101,7 +102,7 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
 
       {isExpanded &&
         <Animated.View
-          entering={FadeIn.delay(100)}
+          entering={FadeInUp.duration(100).springify().damping(14)}
           layout={LinearTransition.damping(14)}
           className="flex-row gap-2 "
         >

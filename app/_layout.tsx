@@ -7,14 +7,14 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import 'react-native-reanimated';
-import { TimerProvider } from '../context/TimerContext';
-import "../global.css";
-
-export { ErrorBoundary } from 'expo-router';
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from 'react-native-reanimated';
+import { TimerProvider } from '../context/TimerContext';
+import "../global.css";
+
+export { ErrorBoundary } from 'expo-router';
 
 // This is the default configuration
 configureReanimatedLogger({

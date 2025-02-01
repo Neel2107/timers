@@ -33,6 +33,10 @@ interface TimerContextType {
   startCategoryTimers: (category: string) => void;
   pauseCategoryTimers: (category: string) => void;
   resetCategoryTimers: (category: string) => void;
+  showCompletionModal: boolean;
+  setShowCompletionModal: (show: boolean) => void;
+  completedTimerName: string;
+  setCompletedTimerName: (name: string) => void;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -40,6 +44,8 @@ const TimerContext = createContext<TimerContextType | undefined>(undefined);
 export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [history, setHistory] = useState<TimerHistoryItem[]>([]);
+  const [showCompletionModal, setShowCompletionModal] = useState(false)
+const [completedTimerName, setCompletedTimerName] = useState('')
 
   // Add load history function
   const loadHistory = async () => {
@@ -154,8 +160,8 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       if (timer.id === id) {
         const remainingTime = Math.max(0, time);
         const status = remainingTime === 0 ? 'completed' : timer.status;
-
-        // Add to history if timer just completed
+        
+        // In the updateRemainingTime function, update the completion logic:
         if (remainingTime === 0 && timer.status !== 'completed') {
           const historyItem: TimerHistoryItem = {
             id: Date.now(),
@@ -165,9 +171,13 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             completedAt: new Date().toISOString(),
           };
           saveHistory([...history, historyItem]);
+          // Show the completion modal
+          setShowCompletionModal(true);
+          setCompletedTimerName(timer.name);
         }
 
         return { ...timer, remainingTime, status };
+
       }
       return timer;
     });
@@ -238,6 +248,11 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       startCategoryTimers,
       pauseCategoryTimers,
       resetCategoryTimers,
+      showCompletionModal,
+      setShowCompletionModal,
+      completedTimerName,
+      setCompletedTimerName
+      
     }}>
       {children}
     </TimerContext.Provider>

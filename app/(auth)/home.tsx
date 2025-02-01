@@ -1,6 +1,8 @@
 import CreateTimerSheet from '@/components/CreateTimerSheet'
+import { CompletionModal } from '@/components/timer/CompletionModal'
 import TimerList from '@/components/TimerList'
 import { useTheme } from '@/context/ThemeContext'
+import { useTimers } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet'
 import { StatusBar } from 'expo-status-bar'
@@ -13,6 +15,8 @@ const HomeScreen = () => {
   const { isDark } = useTheme()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const { showCompletionModal, setShowCompletionModal, completedTimerName } = useTimers()
+
 
   const handleCloseSheet = useCallback(() => {
     Keyboard.dismiss() // Dismiss keyboard when sheet closes
@@ -28,6 +32,11 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <CompletionModal
+        isVisible={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        timerName={completedTimerName}
+      />
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <View className="p-4 flex-1">
         <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
@@ -42,7 +51,7 @@ const HomeScreen = () => {
           className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center ${isDark ? 'bg-indigo-600' : 'bg-indigo-500'
             }`}
           style={{
-            shadowColor: isDark ? '#60a5fa' : '#3b82f6',
+            shadowColor: isDark ? '#60a5fa' : '#60a5fa',
             shadowOffset: { width: 0, height: 8 },
             shadowOpacity: isDark ? 0.4 : 0.2,
             shadowRadius: 12,
