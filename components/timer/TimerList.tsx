@@ -4,8 +4,8 @@ import { Feather } from '@expo/vector-icons'
 import React, { useCallback, useMemo, useState } from 'react'
 import { RefreshControl, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
-import { useTimers } from '../context/TimerContext'
-import CategoryHeader from './CategoryHeader'
+import { useTimers } from '../../context/TimerContext'
+import CategoryHeader from './category/CategoryHeader'
 import TimerCard from './TimerCard'
 
 

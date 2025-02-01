@@ -1,6 +1,6 @@
 import CreateTimerSheet from '@/components/CreateTimerSheet'
 import { CompletionModal } from '@/components/timer/CompletionModal'
-import TimerList from '@/components/TimerList'
+import TimerList from '@/components/timer/TimerList'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
 import { Feather } from '@expo/vector-icons'
@@ -51,7 +51,7 @@ const HomeScreen = () => {
           className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center ${isDark ? 'bg-indigo-600' : 'bg-indigo-500'
             }`}
           style={{
-            shadowColor: isDark ? '#60a5fa' : '#60a5fa',
+            shadowColor: isDark ? '#6a62fc' : '#4f46e5',
             shadowOffset: { width: 0, height: 8 },
             shadowOpacity: isDark ? 0.4 : 0.2,
             shadowRadius: 12,

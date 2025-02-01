@@ -1,12 +1,10 @@
-import TimerCard from '@/components/TimerCard'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
-import { dummyTimers } from '@/data/dummyTimers'
 import { exportHistoryToJSON } from '@/utils/exportHistory'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import React from 'react'
-import { Alert, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const SettingsScreen = () => {
@@ -21,11 +19,7 @@ const SettingsScreen = () => {
 
   const handleExportHistory = async () => {
     if (history.length === 0) {
-      Alert.alert(
-        'No History',
-        'There is no timer history to export.',
-        [{ text: 'OK' }]
-      )
+      ToastAndroid.show('No history to export', ToastAndroid.SHORT)
       return
     }
 

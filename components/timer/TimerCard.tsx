@@ -15,7 +15,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue
 } from 'react-native-reanimated'
-import { TimerProgress } from './timer/TimerProgress'
+import { TimerProgress } from './TimerProgress'
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
