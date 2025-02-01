@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import React from 'react';
 import { Text, View } from 'react-native';
-import Animated, { FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface HistoryItemProps {
   item: TimerHistoryItem;
@@ -15,7 +15,7 @@ export const HistoryItem = ({ item }: HistoryItemProps) => {
 
   return (
     <Animated.View
-      entering={FadeInRight.duration(300)}
+      entering={FadeIn.duration(300)}
       className={`mb-3 p-4 rounded-2xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
         }`}
 

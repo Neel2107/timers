@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTimers } from '../context/TimerContext';
+import { BackHandler } from 'react-native'
 
 const predefinedCategories = ['Workout', 'Study', 'Break', 'Meditation', 'Custom'];
 
@@ -68,6 +69,19 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
       bottomSheetRef.current?.close();
     }
   }, [isOpen]);
+
+  // Add back handler effect
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (isOpen) {
+        onClose()
+        return true // Prevent default back action
+      }
+      return false // Allow default back action
+    })
+
+    return () => backHandler.remove()
+  }, [isOpen, onClose])
 
   const renderBackdrop = useCallback(
     (props: any) => (

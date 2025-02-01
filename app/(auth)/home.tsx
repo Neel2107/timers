@@ -38,8 +38,8 @@ const HomeScreen = () => {
         timerName={completedTimerName}
       />
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <View className="p-4 flex-1">
-        <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
+      <View className="px-4 flex-1">
+        <Text className={`text-2xl  pt-4 font-bold mb-6 ${isDark ? 'text-white' : 'text-black'}`}>
           My Timers
         </Text>
 
