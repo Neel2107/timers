@@ -28,6 +28,7 @@ interface TimerContextType {
   updateTimerStatus: (id: number, status: Timer['status']) => void
   updateRemainingTime: (id: number, time: number) => void
   history: TimerHistoryItem[];
+  loadHistory: () => Promise<void>;
   clearHistory: () => Promise<void>;
   startCategoryTimers: (category: string) => void;
   pauseCategoryTimers: (category: string) => void;
@@ -232,6 +233,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       resetTimer,
       updateTimerStatus,
       updateRemainingTime,
+      loadHistory,
       clearHistory,
       startCategoryTimers,
       pauseCategoryTimers,

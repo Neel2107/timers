@@ -3,14 +3,14 @@ import { useTheme } from '@/context/ThemeContext';
 import { useTimers } from '@/context/TimerContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import React from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HistoryScreen = () => {
   const { isDark } = useTheme();
-  const { history, clearHistory } = useTimers();
+  const { history, clearHistory, loadHistory } = useTimers();
 
   const handleClearHistory = () => {
     Alert.alert(
@@ -33,7 +33,12 @@ const HistoryScreen = () => {
     );
   };
 
-  // console.log("Completed Timers", history.length)
+  useEffect(() => {
+    loadHistory();
+  }, [])
+
+
+  console.log("Histry", history.length > 0)
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
@@ -43,7 +48,7 @@ const HistoryScreen = () => {
         </Text>
 
         <View className="gap-6">
-          {/* History Stats Section */}
+
           <View>
             <Text className={`text-base font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               Overview
@@ -93,33 +98,64 @@ const HistoryScreen = () => {
             </Text>
 
             {history.length > 0 ? (
-              <Animated.FlatList
-                entering={FadeIn.duration(300)}
-                data={history.slice().reverse()}
-                renderItem={({ item }) => <HistoryItem item={item} />}
-                keyExtractor={(item) => item.id.toString()}
-                showsVerticalScrollIndicator={false}
-              />
+              <>
+              <Text>history yest</Text>
+                <FlatList
+
+                  data={history}
+                  renderItem={({ item }) => <HistoryItem item={item} />}
+                  keyExtractor={(item) => item.id.toString()}
+                  showsVerticalScrollIndicator={false}
+                />
+              </>
             ) : (
-              <View className={`p-8 rounded-2xl border items-center ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                }`}>
-                <View className={`w-16 h-16 rounded-2xl items-center justify-center mb-4 ${isDark ? 'bg-slate-700' : 'bg-slate-100'
+              <Animated.View
+                entering={FadeIn.duration(500)}
+                className={`p-8 rounded-2xl border items-center ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                  }`}
+              >
+                <View className={`w-20 h-20 rounded-2xl items-center justify-center mb-6 ${isDark ? 'bg-indigo-500/10 border border-indigo-500/20' : 'bg-indigo-50 border border-indigo-100'
                   }`}>
                   <Ionicons
-                    name="hourglass-outline"
-                    size={32}
-                    color={isDark ? '#94a3b8' : '#64748b'}
+                    name="time-outline"
+                    size={36}
+                    color={isDark ? '#818cf8' : '#6366f1'}
                   />
                 </View>
-                <Text className={`text-lg font-medium mb-1 ${isDark ? 'text-slate-50' : 'text-slate-900'
+                <Text className={`text-xl font-semibold mb-2 ${isDark ? 'text-slate-50' : 'text-slate-900'
                   }`}>
-                  No History Yet
+                  Your History is Empty
                 </Text>
-                <Text className={`text-sm text-center ${isDark ? 'text-slate-400' : 'text-slate-500'
+                <Text className={`text-base text-center mb-6 ${isDark ? 'text-slate-400' : 'text-slate-500'
                   }`}>
-                  Complete your first timer to see it here
+                  Start and complete your first timer{'\n'}to see it appear here
                 </Text>
-              </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    // Add navigation to home screen
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                  className={`flex-row items-center px-6 py-3 rounded-xl ${isDark ? 'bg-indigo-500' : 'bg-indigo-500'
+                    }`}
+                  style={{
+                    shadowColor: isDark ? '#818cf8' : '#6366f1',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 8,
+                    elevation: 4,
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons
+                    name="add-outline"
+                    size={24}
+                    color="#ffffff"
+                  />
+                  <Text className="text-white font-medium text-base ml-2">
+                    Create Timer
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
             )}
           </View>
         </View>

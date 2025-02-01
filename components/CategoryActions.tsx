@@ -39,7 +39,7 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
         >
             <TouchableOpacity
                 onPress={() => handleAction('start')}
-                className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-2 rounded-xl border ${isDark
+                className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-1 rounded-xl border ${isDark
                         ? 'bg-slate-800 border-slate-700'
                         : 'bg-white border-slate-200'
                     }`}
@@ -58,7 +58,7 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
 
             <TouchableOpacity
                 onPress={() => handleAction('pause')}
-                className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-2 rounded-xl border ${isDark
+                className={`flex-1 flex-row items-center justify-center py-3 px-4 gap-1 rounded-xl border ${isDark
                         ? 'bg-slate-800 border-slate-700'
                         : 'bg-white border-slate-200'
                     }`}
@@ -77,7 +77,7 @@ export const CategoryActions = ({ category, isExpanded }: CategoryActionsProps) 
 
             <TouchableOpacity
                 onPress={() => handleAction('reset')}
-                className={`flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl gap-2 border ${isDark
+                className={`flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl gap-1 border ${isDark
                         ? 'bg-slate-800 border-slate-700'
                         : 'bg-white border-slate-200'
                     }`}

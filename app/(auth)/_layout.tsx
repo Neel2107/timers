@@ -14,7 +14,7 @@ const AuthLayout = () => {
           paddingBottom: 8,
           paddingTop: 8,
           height: 65,
-          backgroundColor: isDark ? '#1f2937' : '#ffffff',
+          backgroundColor: isDark ? 'rgb(30 41 59)' : 'rgb(255 255 255)',
           borderTopWidth: 0,
           shadowColor: isDark ? '#000' : '#000',
           shadowOffset: {
@@ -22,11 +22,14 @@ const AuthLayout = () => {
             height: -1,
           },
           shadowOpacity: isDark ? 0.3 : 0.1,
-          shadowRadius: 4,
+          shadowRadius: 8,
           elevation: 5,
         },
-        tabBarActiveTintColor: isDark ? '#60a5fa' : '#3b82f6',
-        tabBarInactiveTintColor: isDark ? '#9ca3af' : '#6b7280',
+        tabBarActiveTintColor: isDark ? '#818cf8' : '#6366f1',
+        tabBarInactiveTintColor: isDark ? '#94a3b8' : '#64748b',
+        tabBarLabelStyle: {
+          fontWeight: '500',
+        },
       }}
     >
       <Tabs.Screen
