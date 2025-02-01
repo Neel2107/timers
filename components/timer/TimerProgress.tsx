@@ -40,7 +40,7 @@ export const TimerProgress = ({
   const { isDark } = useTheme()
 
   return (
-    <View className="mt-5 gap-5">
+    <View className=" gap-5">
       <View className="flex-row justify-between items-center ">
         <Text className={`text-sm font-medium ${status === 'completed'
             ? isDark ? 'text-indigo-400' : 'text-indigo-600'

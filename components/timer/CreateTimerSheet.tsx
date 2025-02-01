@@ -7,9 +7,9 @@ import * as Haptics from 'expo-haptics';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BackHandler, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
-import { useTimers } from '../context/TimerContext';
-import AnimatedError from './Error/AnimatedError';
-import { AlertSection } from './timer/AlertSection';
+import { useTimers } from '../../context/TimerContext';
+import AnimatedError from '@components/Error/AnimatedError';
+import { AlertSection } from '@components/timer/AlertSection';
 
 
 interface CreateTimerSheetProps {
@@ -17,6 +17,8 @@ interface CreateTimerSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const MAX_CATEGORY_LENGTH = 30;
 
 const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetProps) => {
   const { isDark } = useTheme()
@@ -93,6 +95,10 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
     }
     if (value === 'Custom' && !category.trim()) {
       setCategoryError('Please enter a custom category name');
+      return false;
+    }
+    if (value.trim().length > MAX_CATEGORY_LENGTH) {
+      setCategoryError(`Category name cannot exceed ${MAX_CATEGORY_LENGTH} characters`);
       return false;
     }
     setCategoryError('');
@@ -341,10 +347,8 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
                 )}
               </View>
               {showCustomCategory && (
-                <View className={`mt-3 flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'
-                  }`}>
-                  <View className={`w-8 h-8 rounded-full items-center justify-center ${isDark ? 'bg-purple-900/30' : 'bg-purple-100'
-                    }`}>
+                <View className={`mt-3 flex-row items-center rounded-xl border px-4 ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                  <View className={`w-8 h-8 rounded-full items-center justify-center ${isDark ? 'bg-purple-900/30' : 'bg-purple-100'}`}>
                     <Feather
                       name="folder"
                       size={16}
@@ -356,6 +360,7 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
                     placeholder="Enter custom category"
                     placeholderTextColor={isDark ? '#94a3b8' : '#64748b'}
                     value={category === 'Custom' ? '' : category}
+                    maxLength={MAX_CATEGORY_LENGTH}
                     onChangeText={setCategory}
                   />
                 </View>

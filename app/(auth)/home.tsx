@@ -1,5 +1,5 @@
-import CreateTimerSheet from '@/components/CreateTimerSheet'
 import { CompletionModal } from '@/components/timer/CompletionModal'
+import CreateTimerSheet from '@/components/timer/CreateTimerSheet'
 import TimerList from '@/components/timer/TimerList'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
@@ -7,7 +7,7 @@ import { Feather } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet'
 import { StatusBar } from 'expo-status-bar'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Keyboard, RefreshControl, Text, TouchableOpacity, View } from 'react-native'
+import { Keyboard, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
@@ -79,7 +79,7 @@ const HomeScreen = () => {
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
 
       <StatusBar style={isDark ? 'light' : 'dark'} />
-     
+
       <View className="px-4 flex-1">
         <Text className={`text-2xl  pt-4 font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>
           My Timers
@@ -116,7 +116,7 @@ const HomeScreen = () => {
       </View>
 
 
-     
+
       <CreateTimerSheet
         bottomSheetRef={bottomSheetRef}
         isOpen={isOpen}

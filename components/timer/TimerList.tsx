@@ -7,7 +7,6 @@ import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
 import { useTimers } from '../../context/TimerContext'
 import CategoryHeader from './category/CategoryHeader'
-import FilterHeader from './FilterHeader'
 import TimerCard from './TimerCard'
 
 
@@ -79,7 +78,7 @@ const TimerList = () => {
 
       className="flex-1 justify-center items-center px-4"
     >
-      <View className={`w-16 h-w-16 rounded-full  items-center justify-center ${isDark ? 'bg-slate-800 border border-slate-700  ' : 'bg-white border border-slate-200  '
+      <View className={`h-16 w-16 rounded-full  items-center justify-center ${isDark ? 'bg-slate-800 border border-slate-700  ' : 'bg-white border border-slate-200  '
         }`}>
         <Feather
           name="clock"

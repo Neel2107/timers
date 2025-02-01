@@ -62,7 +62,7 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
       className={"gap-5"}
     >
 
-      <View className="flex-row items-start justify-between gap-4">
+      <View className="flex-row items-center justify-between gap-4">
         <View className="flex-row items-center gap-5 flex-1">
           <View className={`w-12 h-12 rounded-xl items-center justify-center ${timer.status === 'running'
             ? isDark ? 'bg-indigo-500/10 border border-indigo-500/20' : 'bg-indigo-50'
@@ -98,7 +98,7 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
           </View>
         </View>
 
-        <View className="flex-row items-center gap-2">
+        <View className="flex-row items-center gap-4">
           <TouchableOpacity
             className={`w-10 h-10 rounded-xl items-center justify-center ${timer.status === 'running'
               ? isDark
@@ -121,10 +121,11 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
           >
             <Feather
               name={timer.status === 'running' ? 'pause' : 'play'}
-              size={18}
+              size={25}
               color={timer.status === 'running' ? '#fff' : isDark ? '#818cf8' : '#6366f1'}
             />
           </TouchableOpacity>
+
 
           <TouchableOpacity
             className={`w-10 h-10 rounded-xl items-center justify-center ${isDark ? 'bg-slate-700/50' : 'bg-slate-100'
@@ -135,7 +136,7 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
           >
             <Feather
               name="refresh-ccw"
-              size={18}
+              size={25}
               color={isDark ? '#94a3b8' : '#64748b'}
             />
           </TouchableOpacity>

@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition, useAnimatedStyle, useDerivedValue, useSharedValue, withSpring } from 'react-native-reanimated';
-import AnimatedError from '../Error/AnimatedError';
+import AnimatedError from '@components/Error/AnimatedError';
 
 interface AlertSectionProps {
     alerts: TimerAlert[];
@@ -18,6 +18,8 @@ const PRESET_ALERTS = [25, 50, 75, 80];
 
 const AnimatedFeather = Animated.createAnimatedComponent(Feather)
 
+const MAX_ALERTS = 5;
+
 export const AlertSection = ({ alerts, onAddAlert, onRemoveAlert }: AlertSectionProps) => {
     const { isDark } = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -27,6 +29,12 @@ export const AlertSection = ({ alerts, onAddAlert, onRemoveAlert }: AlertSection
 
     const handleAddAlert = () => {
         const percentage = parseInt(alertPercentage);
+
+        // Add max alerts validation
+        if (alerts.length >= MAX_ALERTS) {
+            setAlertError(`Maximum ${MAX_ALERTS} alerts allowed`);
+            return;
+        }
 
         // Validate the input
         if (!alertPercentage) {
@@ -120,6 +128,10 @@ export const AlertSection = ({ alerts, onAddAlert, onRemoveAlert }: AlertSection
                             <TouchableOpacity
                                 key={preset}
                                 onPress={() => {
+                                    if (alerts.length >= MAX_ALERTS) {
+                                        setAlertError(`Maximum ${MAX_ALERTS} alerts allowed`);
+                                        return;
+                                    }
                                     if (!alerts.some(a => a.percentage === preset)) {
                                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                         onAddAlert(preset);
