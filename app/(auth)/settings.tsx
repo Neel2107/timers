@@ -1,13 +1,13 @@
+import { GITHUB_URL, LINKDIN_URL, PORTFOLIO_URL, RESUME_URL } from '@/constants/urls'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
 import { exportHistoryToJSON } from '@/utils/exportHistory'
 import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import React from 'react'
-import { Alert, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import { Alert, Linking, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { GITHUB_URL, LINKDIN_URL, PORTFOLIO_URL, RESUME_URL } from '@/constants/urls'
-import { Linking } from 'react-native'
+
 
 const SettingsScreen = () => {
   const { theme, setTheme, isDark } = useTheme()
@@ -45,18 +45,18 @@ const SettingsScreen = () => {
     }
   }
 
+
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <View className="p-4">
         <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
           Settings
         </Text>
-
-        <View className="gap-6">
+        <View className="gap-4">
           {/* Links Section */}
-          <View className="mb-8">
+          <View className="mb-4">
             <Text className={`text-base font-medium mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              LINKS
+            MY LINKS
             </Text>
             <View className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
               <TouchableOpacity
@@ -126,7 +126,7 @@ const SettingsScreen = () => {
           </View>
 
           {/* Existing Appearance Section */}
-          <View className="mb-8">
+          <View className="mb-4">
             <Text className={`text-base font-medium mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               APPEARANCE
             </Text>
@@ -146,13 +146,13 @@ const SettingsScreen = () => {
                       key={themeMode}
                       onPress={() => setTheme(themeMode)}
                       className={`px-3 py-1 rounded-full ${theme === themeMode
-                          ? isDark ? 'bg-indigo-900/30' : 'bg-indigo-100'
-                          : isDark ? 'bg-slate-700/50' : 'bg-slate-100'
+                        ? isDark ? 'bg-indigo-900/30' : 'bg-indigo-100'
+                        : isDark ? 'bg-slate-700/50' : 'bg-slate-100'
                         }`}
                     >
                       <Text className={`text-sm capitalize ${theme === themeMode
-                          ? isDark ? 'text-indigo-400' : 'text-indigo-500'
-                          : isDark ? 'text-slate-400' : 'text-slate-500'
+                        ? isDark ? 'text-indigo-400' : 'text-indigo-500'
+                        : isDark ? 'text-slate-400' : 'text-slate-500'
                         }`}>
                         {themeMode}
                       </Text>
@@ -163,7 +163,7 @@ const SettingsScreen = () => {
             </View>
           </View>
 
-          <View className="mb-8">
+          <View className="mb-4">
             <Text className={`text-base font-medium mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               DATA MANAGEMENT
             </Text>

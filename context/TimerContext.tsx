@@ -1,6 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
+import { ToastAndroid } from 'react-native';
+export interface TimerAlert {
+  percentage: number
+  triggered: boolean
+}
 export interface Timer {
   id: number;
   name: string;
@@ -8,6 +13,7 @@ export interface Timer {
   category: string;
   status: 'running' | 'paused' | 'completed';
   remainingTime: number;
+  alerts: TimerAlert[]
 }
 
 export interface TimerHistoryItem {
@@ -45,7 +51,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [history, setHistory] = useState<TimerHistoryItem[]>([]);
   const [showCompletionModal, setShowCompletionModal] = useState(false)
-const [completedTimerName, setCompletedTimerName] = useState('')
+  const [completedTimerName, setCompletedTimerName] = useState('')
 
   // Add load history function
   const loadHistory = async () => {
@@ -100,6 +106,7 @@ const [completedTimerName, setCompletedTimerName] = useState('')
       id: Date.now(),
       status: 'paused',
       remainingTime: newTimer.duration,
+      alerts: newTimer.alerts || [], // Add this line to initialize alerts
     }
 
     const updatedTimers = [...timers, timer]
@@ -140,7 +147,8 @@ const [completedTimerName, setCompletedTimerName] = useState('')
       timer.id === id ? {
         ...timer,
         status: 'paused' as const,
-        remainingTime: timer.duration
+        remainingTime: timer.duration,
+        alerts: timer.alerts.map(alert => ({ ...alert, triggered: false }))
       } : timer
     )
     saveTimers(updatedTimers)
@@ -153,6 +161,46 @@ const [completedTimerName, setCompletedTimerName] = useState('')
     saveTimers(updatedTimers)
   }
 
+  const checkAlerts = (timer: Timer) => {
+    const currentPercentage = ((timer.duration - timer.remainingTime) / timer.duration) * 100;
+
+    // Sort alerts by percentage and find the first untriggered alert that has been reached
+    const sortedAlerts = [...timer.alerts].sort((a, b) => a.percentage - b.percentage);
+    const nextAlert = sortedAlerts.find(
+      alert => !alert.triggered && currentPercentage >= alert.percentage
+    );
+
+    if (nextAlert) {
+      // Enhanced haptic feedback
+      Haptics.notificationAsync(
+        nextAlert.percentage === 100
+          ? Haptics.NotificationFeedbackType.Success
+          : Haptics.NotificationFeedbackType.Warning
+      );
+
+      // Use ToastAndroid instead of Alert
+      ToastAndroid.show(
+        `${timer.name} is at ${nextAlert.percentage}% completion!`,
+        ToastAndroid.SHORT
+      );
+
+      // Create updated timer with the triggered alert
+      const updatedTimer = {
+        ...timer,
+        alerts: timer.alerts.map(alert =>
+          alert.percentage === nextAlert.percentage
+            ? { ...alert, triggered: true }
+            : alert
+        )
+      };
+
+      // Update the timer in state
+      const updatedTimers = timers.map(t =>
+        t.id === timer.id ? updatedTimer : t
+      );
+      saveTimers(updatedTimers);
+    }
+  };
 
   // Update the updateRemainingTime function to add completed timers to history
   const updateRemainingTime = (id: number, time: number) => {
@@ -160,8 +208,24 @@ const [completedTimerName, setCompletedTimerName] = useState('')
       if (timer.id === id) {
         const remainingTime = Math.max(0, time);
         const status = remainingTime === 0 ? 'completed' : timer.status;
-        
-        // In the updateRemainingTime function, update the completion logic:
+
+        // Create updatedTimer with proper alert state preservation
+        const updatedTimer = {
+          ...timer,
+          remainingTime,
+          status,
+          alerts: timer.alerts.map(alert => ({
+            ...alert,
+            triggered: alert.triggered || ((timer.duration - remainingTime) / timer.duration) * 100 >= alert.percentage
+          }))
+        };
+
+        // Check alerts with the updated timer state
+        if (updatedTimer.alerts.length > 0 && status === 'running') {
+          checkAlerts(updatedTimer);
+        }
+
+        // Completion logic
         if (remainingTime === 0 && timer.status !== 'completed') {
           const historyItem: TimerHistoryItem = {
             id: Date.now(),
@@ -171,13 +235,11 @@ const [completedTimerName, setCompletedTimerName] = useState('')
             completedAt: new Date().toISOString(),
           };
           saveHistory([...history, historyItem]);
-          // Show the completion modal
           setShowCompletionModal(true);
           setCompletedTimerName(timer.name);
         }
 
-        return { ...timer, remainingTime, status };
-
+        return updatedTimer;
       }
       return timer;
     });
@@ -192,11 +254,11 @@ const [completedTimerName, setCompletedTimerName] = useState('')
         AsyncStorage.removeItem('timer_history'),
         AsyncStorage.removeItem('timers')
       ]);
-      
+
       // Reset states
       setHistory([]);
       setTimers([]);
-      
+
       // Force reload timers and history
       await loadTimers();
       await loadHistory();
@@ -252,7 +314,7 @@ const [completedTimerName, setCompletedTimerName] = useState('')
       setShowCompletionModal,
       completedTimerName,
       setCompletedTimerName
-      
+
     }}>
       {children}
     </TimerContext.Provider>

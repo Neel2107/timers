@@ -8,7 +8,6 @@ import Animated, {
   FadeOut,
   SlideInDown,
   SlideOutDown,
-  useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withSequence,
@@ -50,12 +49,6 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
     }
   }, [isVisible])
 
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` }
-    ]
-  }))
 
   return (
     <Modal
@@ -66,32 +59,33 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
       onRequestClose={onClose}
     >
       <TouchableOpacity
-
-        className='flex-1 items-center justify-center bg-black/50'
+        className='flex-1 items-center justify-center '
+        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         onPress={onClose}
+        activeOpacity={1}
       >
         <TouchableWithoutFeedback>
           <Animated.View
-            entering={SlideInDown.springify().damping(15)}
-            exiting={SlideOutDown.springify().damping(15)}
             className={`p-6  rounded-3xl ${isDark ? 'bg-slate-800' : 'bg-white'}`}
           >
-            <View className="items-center h-96 w-96 ">
+            <View className="items-center  w-96 ">
               <View className="flex items-center justify-center">
                 <LottieView
                   autoPlay
                   ref={animation}
-                  source={require('@assets/animations/timers-congo.json')}
+                  source={
+                    isDark ? require('@assets/animations/timers-congo.json') :
+                      require('@assets/animations/timers-congo-light.json')}
                   style={{
                     width: 160,
-                    height: 100,
+                    height: 160,
                     backgroundColor: 'transparent',
                   }}
                 />
               </View>
 
               <Animated.Text
-                entering={FadeIn.delay(300)}
+                entering={FadeIn.delay(100)}
                 className={`text-2xl font-bold text-center mb-2 ${isDark ? 'text-slate-50' : 'text-slate-900'
                   }`}
               >
@@ -99,7 +93,7 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
               </Animated.Text>
 
               <Animated.Text
-                entering={FadeIn.delay(400)}
+                entering={FadeIn.delay(200)}
                 className={`text-base text-center mb-8 ${isDark ? 'text-slate-400' : 'text-slate-500'
                   }`}
               >
@@ -107,7 +101,7 @@ export const CompletionModal = ({ isVisible, onClose, timerName }: CompletionMod
               </Animated.Text>
 
               <AnimatedTouchable
-                entering={FadeIn.delay(500)}
+                entering={FadeIn.delay(300)}
                 exiting={FadeOut}
                 onPress={onClose}
                 className={`w-full py-4 rounded-xl ${isDark ? 'bg-indigo-500' : 'bg-indigo-500'
