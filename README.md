@@ -122,6 +122,3 @@
      - Custom sound notifications
      - More customization options for alerts
   
-  ## License
-  
-  MIT License
