@@ -18,7 +18,7 @@ export { ErrorBoundary } from 'expo-router';
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
-  strict: false, 
+  strict: false,
 });
 
 
@@ -59,8 +59,8 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <ThemeProvider>
-      <TimerProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <TimerProvider>
           <KeyboardProvider>
             <Stack
               screenOptions={{
@@ -71,8 +71,8 @@ function RootLayoutNav() {
               <Stack.Screen name="index" options={{ headerShown: false }} />
             </Stack>
           </KeyboardProvider>
-        </GestureHandlerRootView>
-      </TimerProvider>
+        </TimerProvider>
+      </GestureHandlerRootView>
     </ThemeProvider>
   )
 }
