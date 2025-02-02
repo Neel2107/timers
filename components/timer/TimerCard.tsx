@@ -121,7 +121,7 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
             <Feather
               name={timer.status === 'running' ? 'pause' : 'play'}
               size={25}
-              color={timer.status === 'running' ? '#fff' : isDark ? '#818cf8' : '#6366f1'}
+              color={timer.status === 'running' ? '#818cf8' : isDark ? '#818cf8' : '#6366f1'}
             />
           </TouchableOpacity>
 
