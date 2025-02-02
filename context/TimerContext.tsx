@@ -65,6 +65,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [completedTimerName, setCompletedTimerName] = useState('');
   const intervalsRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
   const lastTickRef = useRef<{ [key: number]: number }>({});
+  const frameRef = useRef<{ [key: number]: number }>({});
 
   const saveHistory = async (updatedHistory: TimerHistoryItem[]) => {
     try {
@@ -104,34 +105,31 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const updateRemainingTime = useCallback((id: number) => {
-    console.log(`[updateRemainingTime] Timer ${id} updating...`);
     const now = Date.now();
     const lastTick = lastTickRef.current[id] || now;
     const elapsed = Math.floor((now - lastTick) / 1000);
 
-    console.log(`[updateRemainingTime] Timer ${id} elapsed: ${elapsed}s, lastTick: ${lastTick}`);
-
     if (elapsed === 0) return;
-
     lastTickRef.current[id] = now;
 
     setTimers(currentTimers => {
       const timer = currentTimers.find(t => t.id === id);
       if (!timer || timer.status !== 'running') {
-        console.log(`[updateRemainingTime] Timer ${id} skipped - status: ${timer?.status}`);
         return currentTimers;
       }
 
-      console.log(`[updateRemainingTime] Timer ${id} remaining: ${timer.remainingTime}s`);
       const newRemainingTime = Math.max(0, timer.remainingTime - elapsed);
 
-      // Handle timer completion
       if (newRemainingTime === 0) {
         if (intervalsRef.current[id]) {
           clearInterval(intervalsRef.current[id]);
           delete intervalsRef.current[id];
-          delete lastTickRef.current[id];
         }
+        if (frameRef.current[id]) {
+          cancelAnimationFrame(frameRef.current[id]);
+          delete frameRef.current[id];
+        }
+        delete lastTickRef.current[id];
 
         const historyItem = createHistoryItem(timer);
         saveHistory([...history, historyItem]);
@@ -143,11 +141,18 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         );
       }
 
-      // Update running timer
       return currentTimers.map(t =>
         t.id === id ? { ...t, remainingTime: newRemainingTime } : t
       );
     });
+
+    if (intervalsRef.current[id]) {
+      frameRef.current[id] = requestAnimationFrame(() => {
+        if (intervalsRef.current[id]) {
+          updateRemainingTime(id);
+        }
+      });
+    }
   }, [history]);
 
   const startTimer = useCallback((id: number) => {
@@ -171,34 +176,29 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   }, [timers, updateRemainingTime]);
 
   const startCategoryTimers = useCallback((category: string) => {
-    console.log(`[startCategoryTimers] Starting category: ${category}`);
     const categoryTimers = timers.filter(t =>
       t.category === category && t.status !== 'completed'
     );
 
-    console.log(`[startCategoryTimers] Found timers:`, categoryTimers.map(t => ({
-      id: t.id,
-      name: t.name,
-      remaining: t.remainingTime
-    })));
+    const now = Date.now();
 
-    // Set all timers to running state first
     setTimers(currentTimers =>
       currentTimers.map(t =>
         t.category === category && t.status !== 'completed'
-          ? { ...t, status: 'running' }
+          ? { ...t, status: 'running', lastUpdated: now }
           : t
       )
     );
 
-    // Start intervals for all timers in category
-    const now = Date.now();
     categoryTimers.forEach(timer => {
-      console.log(`[startCategoryTimers] Setting up interval for timer ${timer.id}`);
       if (!intervalsRef.current[timer.id]) {
         lastTickRef.current[timer.id] = now;
         intervalsRef.current[timer.id] = setInterval(() => {
-          updateRemainingTime(timer.id);
+          if (!frameRef.current[timer.id]) {
+            frameRef.current[timer.id] = requestAnimationFrame(() => {
+              updateRemainingTime(timer.id);
+            });
+          }
         }, 1000);
       }
     });
@@ -208,8 +208,12 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     if (intervalsRef.current[id]) {
       clearInterval(intervalsRef.current[id]);
       delete intervalsRef.current[id];
-      delete lastTickRef.current[id];
     }
+    if (frameRef.current[id]) {
+      cancelAnimationFrame(frameRef.current[id]);
+      delete frameRef.current[id];
+    }
+    delete lastTickRef.current[id];
 
     setTimers(currentTimers =>
       currentTimers.map(t =>
@@ -288,7 +292,6 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       if (intervalsRef.current[timer.id]) {
         clearInterval(intervalsRef.current[timer.id]);
         delete intervalsRef.current[timer.id];
-        delete lastTickRef.current[timer.id];
       }
     });
 
