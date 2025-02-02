@@ -19,6 +19,37 @@
   - Category filtering
   - Timer data persistence
   - Completion notifications with haptic feedback
+
+### Screen Recordings  
+
+[![Embedded screen recording here, showcasing the working app.]](https://github.com/user-attachments/assets/6bb5f9f5-e3f7-40b3-928e-2026395681ac)  
+
+[![Embedded screen recording here, showcasing the working app.]](https://github.com/user-attachments/assets/ace2ac06-9b99-4754-9c8c-2b99763c7719)  
+
+[![Embedded screen recording here, showcasing the working app.]](https://github.com/user-attachments/assets/15b4d7f7-797d-4cd4-8889-c6ac22bd3c20)  
+
+[![Embedded screen recording here, showcasing the working app.]](https://github.com/user-attachments/assets/37d1e6b4-17ff-4df3-87ed-8215696555c5)  
+
+### Screenshots 
+
+<div style="display:flex;">
+  <img src="https://github.com/user-attachments/assets/0994c782-509b-4bf9-967f-cc4a77445b02" alt="Image 1" style="height:300px; margin-right:10px;">
+  <img src="https://github.com/user-attachments/assets/f0974ba9-200a-4c39-8da4-c659cf62215b" alt="Image 2" style="height:300px; margin-right:10px;">
+  <img src="https://github.com/user-attachments/assets/9172b8ae-5f03-4c39-ac62-d6967524d872" alt="Image 3" style="height:300px;">
+</div>
+
+<div style="display:flex;">
+  <img src="https://github.com/user-attachments/assets/e65af401-efd4-4749-be8a-bf9a15698168" alt="Image 4" style="height:300px; margin-right:10px;">
+  <img src="https://github.com/user-attachments/assets/3a1dbd6b-d083-429d-8d95-17fd7601888e" alt="Image 5" style="height:300px; margin-right:10px;">
+  <img src="https://github.com/user-attachments/assets/ae188425-c6f5-4173-a36b-b440b66b5f2a" alt="Image 6" style="height:300px;">
+</div>
+
+<div style="display:flex;">
+  <img src="https://github.com/user-attachments/assets/67f581ad-449a-4072-aabc-cc3c50b303ae" alt="Image 7" style="height:300px;">
+</div>
+
+
+
   
   ## Known Issues
   - Multiple timers running concurrently may experience slight timing inconsistencies
