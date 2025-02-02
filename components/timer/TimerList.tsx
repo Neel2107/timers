@@ -15,7 +15,6 @@ const TimerList = () => {
   const { timers, loadTimers, startTimer, pauseTimer, resetTimer } = useTimers()
   const [refreshing, setRefreshing] = React.useState(false)
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
-  // Add new state for selected category filter
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
 
@@ -145,7 +144,9 @@ const TimerList = () => {
   return (
     <>
       <View>
-
+        {/* Weird rendering issue with custom component
+            @TODO : find issue and refactor into a custom component
+        */}
         <Animated.View
           entering={FadeIn.duration(300)}
           className="mb-4"
@@ -230,8 +231,11 @@ const TimerList = () => {
                 </Text>
               </TouchableOpacity>
             ))}
+
           </ScrollView>
         </Animated.View>
+
+
 
       </View>
       <Animated.FlatList

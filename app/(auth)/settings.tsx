@@ -1,52 +1,80 @@
+import NotificationToast from '@/components/modals/NotificationToast'
 import { GITHUB_URL, LINKDIN_URL, PORTFOLIO_URL, RESUME_URL } from '@/constants/constants'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
 import { exportHistoryToJSON } from '@/utils/exportHistory'
 import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
-import React from 'react'
-import { Alert, Linking, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
+import { Linking, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-
+type ToastType = 'success' | 'error';
 const SettingsScreen = () => {
   const { theme, setTheme, isDark } = useTheme()
   const { history } = useTimers()
 
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastConfig, setToastConfig] = useState<{
+    title: string;
+    message: string;
+    type: ToastType;
+  }>({
+    title: '',
+    message: '',
+    type: 'success'
+  });
+
   const handleExportHistory = async () => {
     if (history.length === 0) {
-      ToastAndroid.show('No history to export', ToastAndroid.SHORT)
-      return
+      setToastConfig({
+        title: 'No History',
+        message: 'No timer history available to export',
+        type: 'error' as const
+      });
+      setShowToast(true);
+      return;
     }
 
     try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-      const success = await exportHistoryToJSON(history)
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      const success = await exportHistoryToJSON(history);
 
       if (success) {
-        Alert.alert(
-          'Success',
-          'Timer history has been exported successfully.',
-          [{ text: 'OK' }]
-        )
+        setToastConfig({
+          title: 'Success',
+          message: 'Timer history has been exported successfully',
+          type: 'success'
+        });
       } else {
-        Alert.alert(
-          'Error',
-          'Failed to export timer history.',
-          [{ text: 'OK' }]
-        )
+        setToastConfig({
+          title: 'Error',
+          message: 'Failed to export timer history',
+          type: 'error'
+        });
       }
+      setShowToast(true);
     } catch (error) {
-      Alert.alert(
-        'Error',
-        'An error occurred while exporting the history.',
-        [{ text: 'OK' }]
-      )
+      setToastConfig({
+        title: 'Error',
+        message: 'An error occurred while exporting the history',
+        type: 'error'
+      });
+      setShowToast(true);
     }
-  }
+  };
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+
+      <NotificationToast
+        isVisible={showToast}
+        title={toastConfig.title}
+        message={toastConfig.message}
+        type={toastConfig.type}
+        onClose={() => setShowToast(false)}
+      />
       {/*
 
 // Weird rendering issue when creating custom components

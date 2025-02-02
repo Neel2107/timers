@@ -4,9 +4,6 @@ import React from 'react'
 import { Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 
-
-
-
 interface TimerProgressProps {
   status: 'completed' | 'running' | 'paused'
   progressPercentage: number

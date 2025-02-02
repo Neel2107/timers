@@ -27,7 +27,6 @@ const TimerHeader = ({ category, count, isExpanded, onToggle }: TimerHeaderProps
   const { timers, startCategoryTimers, pauseCategoryTimers, resetCategoryTimers } = useTimers();
   const rotateZ = useSharedValue(0)
 
-  // Check if any timers in this category are running
   const categoryTimers = useMemo(() =>
     timers.filter(timer => timer.category === category),
     [timers, category]

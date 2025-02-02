@@ -10,18 +10,14 @@ import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import { useTimers } from '../../context/TimerContext';
 import AnimatedError from '@components/Error/AnimatedError';
 import { AlertSection } from '@components/timer/AlertSection';
-
 import { MAX_CATEGORY_LENGTH } from '@/constants/constants';
 import { validateDuration } from '@/utils/validation';
-
 
 interface CreateTimerSheetProps {
   bottomSheetRef: React.RefObject<BottomSheet>;
   isOpen: boolean;
   onClose: () => void;
 }
-
-
 
 const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetProps) => {
   const { isDark } = useTheme()

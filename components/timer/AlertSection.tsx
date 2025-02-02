@@ -6,19 +6,14 @@ import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition, useAnimatedStyle, useDerivedValue, useSharedValue, withSpring } from 'react-native-reanimated';
 import AnimatedError from '@components/Error/AnimatedError';
+import { MAX_ALERTS, PRESET_ALERTS } from '@/constants/constants';
 
 interface AlertSectionProps {
     alerts: TimerAlert[];
     onAddAlert: (percentage: number) => void;
     onRemoveAlert: (index: number) => void;
 }
-
-const PRESET_ALERTS = [25, 50, 75, 80];
-
-
 const AnimatedFeather = Animated.createAnimatedComponent(Feather)
-
-const MAX_ALERTS = 5;
 
 export const AlertSection = ({ alerts, onAddAlert, onRemoveAlert }: AlertSectionProps) => {
     const { isDark } = useTheme();

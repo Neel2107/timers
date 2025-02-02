@@ -20,8 +20,6 @@ const FilterHeader = ({ selectedCategory, onSelectCategory }: FilterHeaderProps)
             entering={FadeIn.duration(300)}
             className="mb-4"
         >
-        
-
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
