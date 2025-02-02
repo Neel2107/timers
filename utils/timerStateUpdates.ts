@@ -14,7 +14,8 @@ export const updateTimerWithRemaining = (
 ): Timer => ({
   ...timer,
   remainingTime: Math.max(0, remainingTime),
-  status: remainingTime === 0 ? 'completed' : timer.status
+  status: remainingTime <= 0 ? 'completed' : timer.status,
+  lastUpdated: Date.now()
 })
 
 export const shouldShowCompletionModal = (

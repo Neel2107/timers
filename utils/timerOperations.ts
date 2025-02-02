@@ -1,4 +1,4 @@
-import type { Timer, TimerAlert } from '@/context/TimerContext'
+import type { Timer } from '@/context/TimerContext'
 
 export const updateTimerAlerts = (timer: Timer, currentPercentage: number) => {
   return timer.alerts.map(alert => ({
@@ -19,31 +19,72 @@ export const updateTimersInCategory = (
   category: string,
   operation: 'start' | 'pause' | 'reset'
 ): Timer[] => {
-  return timers.map(timer => {
-    if (timer.category !== category) return timer
+  console.log(`[updateTimersInCategory] Operation: ${operation}, Category: ${category}`);
+  console.log(`[updateTimersInCategory] Timers before:`, timers.map(t => ({
+    id: t.id,
+    status: t.status,
+    remaining: t.remainingTime
+  })));
+
+  const updatedTimers = timers.map(timer => {
+    if (timer.category !== category) return timer;
     
-    switch (operation) {
-      case 'start':
-        return timer.status !== 'completed'
-          ? { ...timer, status: 'running' as const }
-          : timer
-      case 'pause':
-        return timer.status === 'running'
-          ? { ...timer, status: 'paused' as const }
-          : timer
-      case 'reset':
-        return {
-          ...timer,
-          status: 'paused' as const,
-          remainingTime: timer.duration,
-          alerts: timer.alerts.map(alert => ({ ...alert, triggered: false }))
-        }
-    }
-  })
+    // Don't modify completed timers except for reset
+    if (timer.status === 'completed' && operation !== 'reset') return timer;
+    
+    const updatedTimer = (() => {
+      switch (operation) {
+        case 'start':
+          return {
+            ...timer,
+            status: 'running' as const,
+            lastUpdated: Date.now()
+          };
+        case 'pause':
+          return {
+            ...timer,
+            status: 'paused' as const,
+            lastUpdated: Date.now()
+          };
+        case 'reset':
+          return {
+            ...timer,
+            status: 'paused' as const,
+            remainingTime: timer.duration,
+            lastUpdated: Date.now(),
+            alerts: timer.alerts.map(alert => ({ ...alert, triggered: false }))
+          };
+        default:
+          return timer;
+      }
+    })();
+
+    console.log(`[updateTimersInCategory] Timer ${timer.id} updated:`, {
+      before: timer.status,
+      after: updatedTimer.status
+    });
+
+    return updatedTimer;
+  });
+
+  console.log(`[updateTimersInCategory] Timers after:`, updatedTimers.map(t => ({
+    id: t.id,
+    status: t.status,
+    remaining: t.remainingTime
+  })));
+
+  return updatedTimers;
+}
+
+export const getTimerUpdateInterval = (timer: Timer, now: number): number => {
+  if (!timer.lastUpdated) return 1;
+  const elapsed = Math.floor((now - timer.lastUpdated) / 1000);
+  return Math.max(1, elapsed);
 }
 
 export const calculateTimerProgress = (timer: Timer) => {
-  return ((timer.duration - timer.remainingTime) / timer.duration) * 100
+  if (timer.duration === 0) return 0;
+  return Math.min(100, ((timer.duration - timer.remainingTime) / timer.duration) * 100);
 }
 
 export const isTimerEligibleForAction = (

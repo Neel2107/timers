@@ -10,7 +10,7 @@ import {
 } from '@/utils/timerOperations';
 import { createHistoryItem } from '@/utils/timerStateUpdates';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 export interface TimerAlert {
   percentage: number
@@ -19,11 +19,12 @@ export interface TimerAlert {
 export interface Timer {
   id: number;
   name: string;
-  duration: number;
   category: string;
-  status: 'running' | 'paused' | 'completed';
+  duration: number;
   remainingTime: number;
-  alerts: TimerAlert[]
+  status: 'running' | 'paused' | 'completed';
+  alerts: TimerAlert[];
+  lastUpdated?: number;
 }
 
 export interface TimerHistoryItem {
@@ -62,7 +63,8 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [history, setHistory] = useState<TimerHistoryItem[]>([]);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [completedTimerName, setCompletedTimerName] = useState('');
-  const [activeIntervals, setActiveIntervals] = useState<{ [key: number]: NodeJS.Timeout }>({});
+  const intervalsRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
+  const lastTickRef = useRef<{ [key: number]: number }>({});
 
   const saveHistory = async (updatedHistory: TimerHistoryItem[]) => {
     try {
@@ -102,100 +104,119 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const updateRemainingTime = useCallback((id: number) => {
-    setTimers((currentTimers: any) => {
-      const timer = currentTimers.find((t: any) => t.id === id);
-      if (!timer || timer.status !== 'running') return currentTimers;
+    console.log(`[updateRemainingTime] Timer ${id} updating...`);
+    const now = Date.now();
+    const lastTick = lastTickRef.current[id] || now;
+    const elapsed = Math.floor((now - lastTick) / 1000);
 
-      const newRemainingTime = Math.max(0, timer.remainingTime - 1);
-      const updatedTimer = {
-        ...timer,
-        remainingTime: newRemainingTime,
-        status: newRemainingTime === 0 ? 'completed' : 'running'
-      };
+    console.log(`[updateRemainingTime] Timer ${id} elapsed: ${elapsed}s, lastTick: ${lastTick}`);
 
+    if (elapsed === 0) return;
+
+    lastTickRef.current[id] = now;
+
+    setTimers(currentTimers => {
+      const timer = currentTimers.find(t => t.id === id);
+      if (!timer || timer.status !== 'running') {
+        console.log(`[updateRemainingTime] Timer ${id} skipped - status: ${timer?.status}`);
+        return currentTimers;
+      }
+
+      console.log(`[updateRemainingTime] Timer ${id} remaining: ${timer.remainingTime}s`);
+      const newRemainingTime = Math.max(0, timer.remainingTime - elapsed);
+
+      // Handle timer completion
       if (newRemainingTime === 0) {
+        if (intervalsRef.current[id]) {
+          clearInterval(intervalsRef.current[id]);
+          delete intervalsRef.current[id];
+          delete lastTickRef.current[id];
+        }
+
         const historyItem = createHistoryItem(timer);
         saveHistory([...history, historyItem]);
         setShowCompletionModal(true);
         setCompletedTimerName(timer.name);
 
-        if (activeIntervals[id]) {
-          clearInterval(activeIntervals[id]);
-          setActiveIntervals(prev => {
-            const newIntervals = { ...prev };
-            delete newIntervals[id];
-            return newIntervals;
-          });
-        }
+        return currentTimers.map(t =>
+          t.id === id ? { ...t, remainingTime: 0, status: 'completed' } : t
+        );
       }
 
-      const updatedTimers = currentTimers.map((t: any) =>
-        t.id === id ? updatedTimer : t
+      // Update running timer
+      return currentTimers.map(t =>
+        t.id === id ? { ...t, remainingTime: newRemainingTime } : t
       );
-      saveTimers(updatedTimers);
-      return updatedTimers;
     });
-  }, [history, activeIntervals]);
+  }, [history]);
 
   const startTimer = useCallback((id: number) => {
     const timer = timers.find(t => t.id === id);
     if (!timer || timer.status === 'completed') return;
 
+    // Set initial state
     setTimers(currentTimers =>
       currentTimers.map(t =>
         t.id === id ? { ...t, status: 'running' } : t
       )
     );
 
-    if (!activeIntervals[id]) {
-      const interval = setInterval(() => updateRemainingTime(id), 1000);
-      setActiveIntervals(prev => ({
-        ...prev,
-        [id]: interval
-      }));
+    // Start interval if not already running
+    if (!intervalsRef.current[id]) {
+      lastTickRef.current[id] = Date.now();
+      intervalsRef.current[id] = setInterval(() => {
+        updateRemainingTime(id);
+      }, 1000);
     }
-  }, [timers, activeIntervals, updateRemainingTime]);
+  }, [timers, updateRemainingTime]);
 
   const startCategoryTimers = useCallback((category: string) => {
+    console.log(`[startCategoryTimers] Starting category: ${category}`);
     const categoryTimers = timers.filter(t =>
       t.category === category && t.status !== 'completed'
     );
 
+    console.log(`[startCategoryTimers] Found timers:`, categoryTimers.map(t => ({
+      id: t.id,
+      name: t.name,
+      remaining: t.remainingTime
+    })));
+
+    // Set all timers to running state first
     setTimers(currentTimers =>
-      currentTimers.map(timer =>
-        timer.category === category && timer.status !== 'completed'
-          ? { ...timer, status: 'running' }
-          : timer
+      currentTimers.map(t =>
+        t.category === category && t.status !== 'completed'
+          ? { ...t, status: 'running' }
+          : t
       )
     );
 
+    // Start intervals for all timers in category
+    const now = Date.now();
     categoryTimers.forEach(timer => {
-      if (!activeIntervals[timer.id]) {
-        const interval = setInterval(() => updateRemainingTime(timer.id), 1000);
-        setActiveIntervals(prev => ({
-          ...prev,
-          [timer.id]: interval
-        }));
+      console.log(`[startCategoryTimers] Setting up interval for timer ${timer.id}`);
+      if (!intervalsRef.current[timer.id]) {
+        lastTickRef.current[timer.id] = now;
+        intervalsRef.current[timer.id] = setInterval(() => {
+          updateRemainingTime(timer.id);
+        }, 1000);
       }
     });
-  }, [timers, activeIntervals, updateRemainingTime]);
+  }, [timers, updateRemainingTime]);
 
   const pauseTimer = useCallback((id: number) => {
-    if (activeIntervals[id]) {
-      clearInterval(activeIntervals[id]);
-      setActiveIntervals(prev => {
-        const newIntervals = { ...prev };
-        delete newIntervals[id];
-        return newIntervals;
-      });
+    if (intervalsRef.current[id]) {
+      clearInterval(intervalsRef.current[id]);
+      delete intervalsRef.current[id];
+      delete lastTickRef.current[id];
     }
 
-    const updatedTimers = timers.map(t =>
-      t.id === id ? { ...t, status: 'paused' as const } : t
+    setTimers(currentTimers =>
+      currentTimers.map(t =>
+        t.id === id ? { ...t, status: 'paused' } : t
+      )
     );
-    setTimers(updatedTimers);
-    saveTimers(updatedTimers);
-  }, [timers, activeIntervals]);
+  }, []);
 
   const resetTimer = async (id: number) => {
     const updatedTimers = timers.map(timer =>
@@ -258,11 +279,27 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const pauseCategoryTimers = (category: string) => {
-    const updatedTimers = updateTimersInCategory(timers, category, 'pause')
-    setTimers(updatedTimers)
-    saveTimers(updatedTimers)
-  }
+  const pauseCategoryTimers = useCallback((category: string) => {
+    const categoryTimers = timers.filter(t =>
+      t.category === category && t.status === 'running'
+    );
+
+    categoryTimers.forEach(timer => {
+      if (intervalsRef.current[timer.id]) {
+        clearInterval(intervalsRef.current[timer.id]);
+        delete intervalsRef.current[timer.id];
+        delete lastTickRef.current[timer.id];
+      }
+    });
+
+    setTimers(currentTimers =>
+      currentTimers.map(t =>
+        t.category === category && t.status === 'running'
+          ? { ...t, status: 'paused' }
+          : t
+      )
+    );
+  }, [timers]);
 
   const resetCategoryTimers = (category: string) => {
     const updatedTimers = updateTimersInCategory(timers, category, 'reset')
@@ -288,9 +325,11 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      Object.values(activeIntervals).forEach(interval => clearInterval(interval));
+      Object.values(intervalsRef.current).forEach(interval => clearInterval(interval));
+      intervalsRef.current = {};
+      lastTickRef.current = {};
     };
-  }, [activeIntervals]);
+  }, []);
 
   // Save timers whenever they change
   useEffect(() => {
