@@ -16,13 +16,10 @@ import "../global.css";
 
 export { ErrorBoundary } from 'expo-router';
 
-// This is the default configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
-  strict: false, // Reanimated runs in strict mode by default
+  strict: false, 
 });
-
-
 
 
 export const unstable_settings = {

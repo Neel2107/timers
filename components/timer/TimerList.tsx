@@ -6,8 +6,8 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeIn, FadeInUp, FadeOut, LinearTransition } from 'react-native-reanimated'
 import { useTimers } from '../../context/TimerContext'
-import CategoryHeader from './category/CategoryHeader'
 import TimerCard from './TimerCard'
+import TimerHeader from './TimerHeader'
 
 
 const TimerList = () => {
@@ -111,8 +111,7 @@ const TimerList = () => {
           }`}
       >
         <View >
-
-          <CategoryHeader
+          <TimerHeader
             category={category}
             count={timers.length}
             isExpanded={isExpanded}

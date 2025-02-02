@@ -4,3 +4,8 @@ export const LINKDIN_URL = "https://www.linkedin.com/in/neelpatel2107"
 export const PORTFOLIO_URL = "https://neelpatel.vercel.app"
 export const RESUME_URL = "https://drive.google.com/drive/folders/1DQ4kkRG_uoiwEjbzq-Um6JYE4UI7zu6X?usp=drive_link"
 export const predefinedCategories = ['Workout', 'Study', 'Break', 'Meditation','Reading', 'Custom'];
+
+export const STORAGE_KEYS = {
+    TIMERS: 'timers',
+    HISTORY: 'timer_history'
+  } as const;

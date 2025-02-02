@@ -10,8 +10,9 @@ import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import { useTimers } from '../../context/TimerContext';
 import AnimatedError from '@components/Error/AnimatedError';
 import { AlertSection } from '@components/timer/AlertSection';
-import { validateDuration } from '@/utils/helpers';
+
 import { MAX_CATEGORY_LENGTH } from '@/constants/constants';
+import { validateDuration } from '@/utils/validation';
 
 
 interface CreateTimerSheetProps {

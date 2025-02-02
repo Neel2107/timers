@@ -15,14 +15,14 @@ import Animated, {
 
 const AnimatedFeather = Animated.createAnimatedComponent(Feather)
 
-interface CategoryHeaderProps {
+interface TimerHeaderProps {
   category: string
   count: number
   isExpanded: boolean
   onToggle: () => void
 }
 
-const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeaderProps) => {
+const TimerHeader = ({ category, count, isExpanded, onToggle }: TimerHeaderProps) => {
   const { isDark } = useTheme()
   const { timers, startCategoryTimers, pauseCategoryTimers, resetCategoryTimers } = useTimers();
   const rotateZ = useSharedValue(0)
@@ -149,4 +149,4 @@ const CategoryHeader = ({ category, count, isExpanded, onToggle }: CategoryHeade
   )
 }
 
-export default React.memo(CategoryHeader)
+export default React.memo(TimerHeader)

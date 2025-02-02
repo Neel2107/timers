@@ -1,16 +1,21 @@
 import { handleTimerAlert, logAlertStatus } from '@/utils/alertHandlers';
 import {
+  clearAllData,
   loadHistory as loadHistoryFromStorage,
-  loadTimers as loadTimersFromStorage
+  loadTimers as loadTimersFromStorage,
+  saveHistory as saveHistoryToStorage,
+  saveTimers as saveTimersToStorage
 } from '@/utils/storage';
 import {
+  createHistoryItem,
   getNextAlert,
   updateTimerAlerts,
   updateTimersInCategory
 } from '@/utils/timerOperations';
-import { createHistoryItem } from '@/utils/timerStateUpdates';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 
 export interface TimerAlert {
   percentage: number
@@ -67,15 +72,23 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const lastTickRef = useRef<{ [key: number]: number }>({});
   const frameRef = useRef<{ [key: number]: number }>({});
 
+  /**
+   * Saves timer history to AsyncStorage and updates local state
+   * Used when a timer completes to maintain completion records
+   */
   const saveHistory = async (updatedHistory: TimerHistoryItem[]) => {
     try {
-      await AsyncStorage.setItem('timer_history', JSON.stringify(updatedHistory));
+      await saveHistoryToStorage(updatedHistory);
       setHistory(updatedHistory);
     } catch (error) {
       console.error('Error saving history:', error);
     }
   };
 
+  /**
+   * Creates a new timer with default values and saves it
+   * Handles the creation of timers from user input with initial paused state
+   */
   const addTimer = async (newTimer: Omit<Timer, 'id' | 'status' | 'remainingTime'>) => {
     const timer: Timer = {
       ...newTimer,
@@ -85,25 +98,33 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       alerts: newTimer.alerts || [],
     }
 
-    const updatedTimers = [...timers, timer]
-    setTimers(updatedTimers)
-
+    const updatedTimers = [...timers, timer];
     try {
-      await AsyncStorage.setItem('timers', JSON.stringify(updatedTimers))
+      await saveTimersToStorage(updatedTimers);
+      setTimers(updatedTimers);
     } catch (error) {
-      console.error('Error saving timer:', error)
+      console.error('Error saving timer:', error);
     }
-  }
+  };
 
+  /**
+   * Persists timer state to AsyncStorage and updates local state
+   * Central function for saving timer state changes
+   */
   const saveTimers = async (updatedTimers: Timer[]) => {
     try {
-      await AsyncStorage.setItem('timers', JSON.stringify(updatedTimers))
-      setTimers(updatedTimers)
+      await saveTimersToStorage(updatedTimers);
+      setTimers(updatedTimers);
     } catch (error) {
-      console.error('Error saving timers:', error)
+      console.error('Error saving timers:', error);
     }
-  }
+  };
 
+  /**
+   * Updates the remaining time for a running timer
+   * Handles time calculations, completion checks, and cleanup
+   * Uses requestAnimationFrame for smooth updates
+   */
   const updateRemainingTime = useCallback((id: number) => {
     const now = Date.now();
     const lastTick = lastTickRef.current[id] || now;
@@ -155,26 +176,32 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [history]);
 
+  /**
+   * Starts a specific timer by ID
+   * Sets up interval for time tracking and updates timer status
+   * Used for individual timer start actions
+   */
   const startTimer = useCallback((id: number) => {
-    const timer = timers.find(t => t.id === id);
-    if (!timer || timer.status === 'completed') return;
+    setTimers(prevTimers => {
+      const now = Date.now();
+      return prevTimers.map(timer => {
+        if (timer.id === id && timer.status !== 'completed') {
+          lastTickRef.current[id] = now;
+          intervalsRef.current[id] = setInterval(() => {
+            updateRemainingTime(id);
+          }, 1000);
+          return { ...timer, status: 'running' as const, lastUpdated: now };
+        }
+        return timer;
+      });
+    });
+  }, [updateRemainingTime]);
 
-    // Set initial state
-    setTimers(currentTimers =>
-      currentTimers.map(t =>
-        t.id === id ? { ...t, status: 'running' } : t
-      )
-    );
-
-    // Start interval if not already running
-    if (!intervalsRef.current[id]) {
-      lastTickRef.current[id] = Date.now();
-      intervalsRef.current[id] = setInterval(() => {
-        updateRemainingTime(id);
-      }, 1000);
-    }
-  }, [timers, updateRemainingTime]);
-
+  /**
+   * Starts all timers in a specific category
+   * Used for bulk operations on category level
+   * Sets up intervals for each timer in the category
+   */
   const startCategoryTimers = useCallback((category: string) => {
     const categoryTimers = timers.filter(t =>
       t.category === category && t.status !== 'completed'
@@ -204,24 +231,29 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     });
   }, [timers, updateRemainingTime]);
 
+  /**
+   * Pauses a specific timer by ID
+   * Cleans up intervals and updates timer status
+   * Used for individual timer pause actions
+   */
   const pauseTimer = useCallback((id: number) => {
     if (intervalsRef.current[id]) {
       clearInterval(intervalsRef.current[id]);
       delete intervalsRef.current[id];
     }
-    if (frameRef.current[id]) {
-      cancelAnimationFrame(frameRef.current[id]);
-      delete frameRef.current[id];
-    }
-    delete lastTickRef.current[id];
 
-    setTimers(currentTimers =>
-      currentTimers.map(t =>
-        t.id === id ? { ...t, status: 'paused' } : t
+    setTimers(prevTimers =>
+      prevTimers.map(timer =>
+        timer.id === id ? { ...timer, status: 'paused' as const, lastUpdated: Date.now() } : timer
       )
     );
   }, []);
 
+  /**
+   * Resets a timer to its initial state
+   * Restores original duration and clears alert triggers
+   * Used for individual timer reset actions
+   */
   const resetTimer = async (id: number) => {
     const updatedTimers = timers.map(timer =>
       timer.id === id ? {
@@ -230,11 +262,15 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         remainingTime: timer.duration,
         alerts: timer.alerts.map(alert => ({ ...alert, triggered: false }))
       } : timer
-    )
-    setTimers(updatedTimers)
-    await saveTimers(updatedTimers)
-  }
+    );
+    setTimers(updatedTimers);
+    await saveTimers(updatedTimers);
+  };
 
+  /**
+   * Updates the status of a specific timer
+   * Used for direct status changes without additional logic
+   */
   const updateTimerStatus = (id: number, status: Timer['status']) => {
     const updatedTimers = timers.map(timer =>
       timer.id === id ? { ...timer, status } : timer
@@ -242,6 +278,11 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     saveTimers(updatedTimers)
   }
 
+  /**
+   * Checks and handles timer alerts
+   * Manages percentage-based alerts and triggers notifications
+   * Used during timer execution to show progress alerts
+   */
   const checkAlerts = async (timer: Timer) => {
     if (!timer.alerts || timer.status !== 'running') return
 
@@ -264,12 +305,14 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  /**
+   * Clears all timer and history data
+   * Used for resetting the app to initial state
+   * Removes data from AsyncStorage and resets state
+   */
   const clearHistory = async () => {
     try {
-      await Promise.all([
-        AsyncStorage.removeItem('timer_history'),
-        AsyncStorage.removeItem('timers')
-      ]);
+      await clearAllData();
 
       // Reset states
       setHistory([]);
@@ -283,6 +326,11 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  /**
+   * Pauses all timers in a specific category
+   * Used for bulk pause operations at category level
+   * Cleans up intervals for all category timers
+   */
   const pauseCategoryTimers = useCallback((category: string) => {
     const categoryTimers = timers.filter(t =>
       t.category === category && t.status === 'running'
@@ -304,23 +352,55 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     );
   }, [timers]);
 
+  /**
+   * Resets all timers in a specific category
+   * Used for bulk reset operations at category level
+   */
   const resetCategoryTimers = (category: string) => {
     const updatedTimers = updateTimersInCategory(timers, category, 'reset')
     setTimers(updatedTimers)
     saveTimers(updatedTimers)
   }
 
+  /**
+   * Loads timer history from AsyncStorage
+   * Used during app initialization and after data changes
+   */
   const loadHistory = async () => {
     const loadedHistory = await loadHistoryFromStorage()
     setHistory(loadedHistory)
   }
 
+  /**
+   * Loads and restores timer states from AsyncStorage
+   * Handles timer state restoration after app restart
+   * Restarts running timers and their intervals
+   */
   const loadTimers = async () => {
-    const loadedTimers = await loadTimersFromStorage()
-    setTimers(loadedTimers)
-  }
+    try {
+      const storedTimers = await loadTimersFromStorage();
+      if (storedTimers && storedTimers.length > 0) {
+        setTimers(storedTimers);
 
+        // Restart intervals for running timers
+        const now = Date.now();
+        storedTimers.forEach(timer => {
+          if (timer.status === 'running') {
+            lastTickRef.current[timer.id] = now;
+            intervalsRef.current[timer.id] = setInterval(() => {
+              updateRemainingTime(timer.id);
+            }, 1000);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error loading timers:', error);
+    }
+  };
+
+  // Effect hooks for initialization, cleanup, and state management
   useEffect(() => {
+    // Initial load effect
     loadTimers();
     loadHistory();
   }, []);
@@ -336,7 +416,24 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Save timers whenever they change
   useEffect(() => {
-    saveTimers(timers);
+    if (timers.length > 0) {
+      saveTimers(timers);
+    }
+  }, [timers]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        loadTimers();
+      } else if (nextAppState === 'background') {
+        // Save current state before going to background
+        saveTimers(timers);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, [timers]);
 
   return (
