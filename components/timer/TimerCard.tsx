@@ -1,5 +1,6 @@
 import { useTheme } from '@/context/ThemeContext'
 import type { Timer } from '@/context/TimerContext'
+import { formatTime } from '@/utils/helpers'
 import { Feather } from '@expo/vector-icons'
 import React from 'react'
 import { Text, View } from 'react-native'
@@ -25,6 +26,7 @@ interface TimerCardProps {
 
 const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: TimerCardProps) => {
   const { isDark } = useTheme()
+
 
   const progress = useDerivedValue(() => {
     return timer ? 1 - (timer.remainingTime / timer.duration) : 0
@@ -61,7 +63,6 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
       exiting={FadeOutUp.duration(200)}
       className={"gap-5"}
     >
-
       <View className="flex-row items-center justify-between gap-4">
         <View className="flex-row items-center gap-5 flex-1">
           <View className={`w-12 h-12 rounded-xl items-center justify-center ${timer.status === 'running'
@@ -87,13 +88,11 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
             />
           </View>
           <View className="flex-1">
-            <Text className={`text-base font-semibold mb-1 ${isDark ? 'text-slate-50' : 'text-slate-900'
-              }`}>
+            <Text className={`text-base font-semibold mb-1 ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
               {timer.name}
             </Text>
-            <Text className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'
-              }`}>
-              {timer.category}
+            <Text className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              {timer.category} • {formatTime(timer.duration)}
             </Text>
           </View>
         </View>

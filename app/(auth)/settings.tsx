@@ -1,4 +1,4 @@
-import { GITHUB_URL, LINKDIN_URL, PORTFOLIO_URL, RESUME_URL } from '@/constants/urls'
+import { GITHUB_URL, LINKDIN_URL, PORTFOLIO_URL, RESUME_URL } from '@/constants/constants'
 import { useTheme } from '@/context/ThemeContext'
 import { useTimers } from '@/context/TimerContext'
 import { exportHistoryToJSON } from '@/utils/exportHistory'

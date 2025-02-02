@@ -1,4 +1,4 @@
-import { predefinedCategories } from '@/constants/categories';
+import { predefinedCategories } from '@/constants/constants';
 import { useTheme } from '@/context/ThemeContext';
 import { TimerAlert } from '@/context/TimerContext';
 import { Feather } from '@expo/vector-icons';
@@ -10,6 +10,8 @@ import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import { useTimers } from '../../context/TimerContext';
 import AnimatedError from '@components/Error/AnimatedError';
 import { AlertSection } from '@components/timer/AlertSection';
+import { validateDuration } from '@/utils/helpers';
+import { MAX_CATEGORY_LENGTH } from '@/constants/constants';
 
 
 interface CreateTimerSheetProps {
@@ -18,7 +20,7 @@ interface CreateTimerSheetProps {
   onClose: () => void;
 }
 
-const MAX_CATEGORY_LENGTH = 30;
+
 
 const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetProps) => {
   const { isDark } = useTheme()
@@ -53,36 +55,9 @@ const CreateTimerSheet = ({ bottomSheetRef, isOpen, onClose }: CreateTimerSheetP
     return true;
   };
 
-  const validateDuration = (value: string) => {
-    if (!value) {
-      setDurationError('Duration is required');
-      return false;
-    }
 
-    // Only allow numbers
-    if (!/^\d*$/.test(value)) {
-      return false;
-    }
-
-    const durationNum = parseInt(value);
-    if (value.length > 5) {
-      setDurationError('Duration is too long');
-      return false;
-    }
-    if (isNaN(durationNum) || durationNum <= 0) {
-      setDurationError('Duration must be a positive number');
-      return false;
-    }
-    if (durationNum > 86400) {
-      setDurationError('Duration cannot exceed 24 hours');
-      return false;
-    }
-    setDurationError('');
-    return true;
-  };
 
   const handleDurationChange = (value: string) => {
-    // Only allow numbers and limit length
     if (!/^\d*$/.test(value) || value.length > 5) return;
     setDuration(value);
     validateDuration(value);

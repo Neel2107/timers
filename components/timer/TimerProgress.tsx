@@ -1,28 +1,11 @@
 import { useTheme } from '@/context/ThemeContext'
+import { formatTime } from '@/utils/helpers'
 import React from 'react'
 import { Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 
 
-const formatTime = (seconds: number): string => {
-  if (seconds < 60) {
-    return `${seconds}s`
-  }
 
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const remainingSeconds = seconds % 60
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m ${remainingSeconds}s`
-  }
-
-  if (minutes > 0) {
-    return `${minutes}m ${remainingSeconds}s`
-  }
-
-  return `${seconds}s`
-}
 
 interface TimerProgressProps {
   status: 'completed' | 'running' | 'paused'

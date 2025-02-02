@@ -1,4 +1,4 @@
-import { predefinedCategories } from '@/constants/categories'
+import { predefinedCategories } from '@/constants/constants'
 import { useTheme } from '@/context/ThemeContext'
 import { Feather } from '@expo/vector-icons'
 import React from 'react'
