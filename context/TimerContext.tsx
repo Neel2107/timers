@@ -1,3 +1,4 @@
+import AlertModal from '@/components/modals/AlertModal';
 import { handleTimerAlert, logAlertStatus } from '@/utils/alertHandlers';
 import {
   clearAllData,
@@ -12,7 +13,7 @@ import {
   updateTimerAlerts,
   updateTimersInCategory
 } from '@/utils/timerOperations';
-
+import * as Haptics from 'expo-haptics';
 
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
@@ -59,6 +60,13 @@ interface TimerContextType {
   setShowCompletionModal: (show: boolean) => void;
   completedTimerName: string;
   setCompletedTimerName: (name: string) => void;
+  showAlertModal: boolean;
+  setShowAlertModal: (show: boolean) => void;
+  alertTimer: Timer | null;
+  setAlertTimer: (timer: Timer | null) => void;
+  alertPercentage: number;
+  setAlertPercentage: (percentage: number) => void;
+  
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -68,6 +76,10 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [history, setHistory] = useState<TimerHistoryItem[]>([]);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [completedTimerName, setCompletedTimerName] = useState('');
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertTimer, setAlertTimer] = useState<Timer | null>(null);
+  const [alertPercentage, setAlertPercentage] = useState(0);
+  
   const intervalsRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
   const lastTickRef = useRef<{ [key: number]: number }>({});
   const frameRef = useRef<{ [key: number]: number }>({});
@@ -120,6 +132,44 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+
+   /**
+   * Checks and handles timer alerts
+   * Manages percentage-based alerts and triggers notifications
+   * Used during timer execution to show progress alerts
+   */
+   const checkAlerts = async (timer: Timer) => {
+    if (!timer.alerts || timer.status !== 'running') return
+
+    const currentPercentage = ((timer.duration - timer.remainingTime) / timer.duration) * 100;
+    const currentTimer = timers.find(t => t.id === timer.id);
+    if (!currentTimer) return;
+
+     const nextAlert = getNextAlert(currentTimer);
+    logAlertStatus(currentPercentage, nextAlert, currentTimer.alerts);
+
+    if (nextAlert) {
+      await Haptics.notificationAsync(
+        nextAlert.percentage === 100
+          ? Haptics.NotificationFeedbackType.Success
+          : Haptics.NotificationFeedbackType.Warning
+      );
+      
+      setAlertTimer(timer);
+      setAlertPercentage(nextAlert.percentage);
+      setShowAlertModal(true);
+
+      const updatedTimers = timers.map(t =>
+        t.id === timer.id
+          ? { ...t, alerts: updateTimerAlerts(t, currentPercentage) }
+          : t
+      );
+      setTimers(updatedTimers);
+      await saveTimers(updatedTimers);
+    }
+  }
+
+  
   /**
    * Updates the remaining time for a running timer
    * Handles time calculations, completion checks, and cleanup
@@ -129,44 +179,51 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     const now = Date.now();
     const lastTick = lastTickRef.current[id] || now;
     const elapsed = Math.floor((now - lastTick) / 1000);
-
+  
     if (elapsed === 0) return;
     lastTickRef.current[id] = now;
-
-    setTimers(currentTimers => {
-      const timer = currentTimers.find(t => t.id === id);
-      if (!timer || timer.status !== 'running') {
-        return currentTimers;
+  
+    const currentTimer = timers.find(t => t.id === id);
+    if (!currentTimer || currentTimer.status !== 'running') return;
+  
+    const newRemainingTime = Math.max(0, currentTimer.remainingTime - elapsed);
+  
+    // Handle completion
+    if (newRemainingTime === 0) {
+      if (intervalsRef.current[id]) {
+        clearInterval(intervalsRef.current[id]);
+        delete intervalsRef.current[id];
       }
-
-      const newRemainingTime = Math.max(0, timer.remainingTime - elapsed);
-
-      if (newRemainingTime === 0) {
-        if (intervalsRef.current[id]) {
-          clearInterval(intervalsRef.current[id]);
-          delete intervalsRef.current[id];
-        }
-        if (frameRef.current[id]) {
-          cancelAnimationFrame(frameRef.current[id]);
-          delete frameRef.current[id];
-        }
-        delete lastTickRef.current[id];
-
-        const historyItem = createHistoryItem(timer);
-        saveHistory([...history, historyItem]);
-        setShowCompletionModal(true);
-        setCompletedTimerName(timer.name);
-
-        return currentTimers.map(t =>
-          t.id === id ? { ...t, remainingTime: 0, status: 'completed' } : t
-        );
+      if (frameRef.current[id]) {
+        cancelAnimationFrame(frameRef.current[id]);
+        delete frameRef.current[id];
       }
-
-      return currentTimers.map(t =>
-        t.id === id ? { ...t, remainingTime: newRemainingTime } : t
+      delete lastTickRef.current[id];
+  
+      const historyItem = createHistoryItem(currentTimer);
+      saveHistory([...history, historyItem]);
+      setShowCompletionModal(true);
+      setCompletedTimerName(currentTimer.name);
+  
+      setTimers(prev => 
+        prev.map(t => t.id === id ? { ...t, remainingTime: 0, status: 'completed' } : t)
       );
-    });
-
+      return;
+    }
+  
+    // Update timer state
+    setTimers(prev => 
+      prev.map(t => t.id === id ? { ...t, remainingTime: newRemainingTime } : t)
+    );
+  
+    // Schedule next check for alerts separately
+    if (currentTimer.alerts?.length > 0) {
+      requestAnimationFrame(() => {
+        checkAlerts(currentTimer);
+      });
+    }
+  
+    // Continue animation frame if timer is still running
     if (intervalsRef.current[id]) {
       frameRef.current[id] = requestAnimationFrame(() => {
         if (intervalsRef.current[id]) {
@@ -174,7 +231,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
     }
-  }, [history]);
+  }, [history, checkAlerts, timers]);
 
   /**
    * Starts a specific timer by ID
@@ -278,33 +335,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     saveTimers(updatedTimers)
   }
 
-  /**
-   * Checks and handles timer alerts
-   * Manages percentage-based alerts and triggers notifications
-   * Used during timer execution to show progress alerts
-   */
-  const checkAlerts = async (timer: Timer) => {
-    if (!timer.alerts || timer.status !== 'running') return
-
-    const currentPercentage = ((timer.duration - timer.remainingTime) / timer.duration) * 100
-    const currentTimer = timers.find(t => t.id === timer.id)
-    if (!currentTimer) return
-
-    const nextAlert = getNextAlert(currentTimer)
-    logAlertStatus(currentPercentage, nextAlert, currentTimer.alerts)
-
-    if (nextAlert) {
-      await handleTimerAlert(timer, nextAlert)
-      const updatedTimers = timers.map(t =>
-        t.id === timer.id
-          ? { ...t, alerts: updateTimerAlerts(t, currentPercentage) }
-          : t
-      )
-      setTimers(updatedTimers)
-      await saveTimers(updatedTimers)
-    }
-  }
-
+ 
   /**
    * Clears all timer and history data
    * Used for resetting the app to initial state
@@ -455,9 +486,23 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
       showCompletionModal,
       setShowCompletionModal,
       completedTimerName,
-      setCompletedTimerName
+      setCompletedTimerName,
+      showAlertModal,
+      setShowAlertModal,
+      alertTimer,
+      setAlertTimer,
+      alertPercentage,
+      setAlertPercentage,
     }}>
       {children}
+      {showAlertModal && alertTimer && (
+        <AlertModal
+          isVisible={showAlertModal}
+          timer={alertTimer}
+          percentage={alertPercentage}
+          onClose={() => setShowAlertModal(false)}
+        />
+      )}
     </TimerContext.Provider>
   )
 }
