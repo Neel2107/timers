@@ -7,7 +7,7 @@ import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Animated, {
   FadeInUp,
-  FadeOutUp,
+  FadeOut,
   interpolateColor,
   LinearTransition,
   useAnimatedStyle,
@@ -58,9 +58,9 @@ const TimerCard = ({ timer, index, onPlayPause, onReset, progressPercentage }: T
 
   return (
     <Animated.View
-      layout={LinearTransition.damping(14)}
-      entering={FadeInUp.duration(200).delay(index * 100).springify().damping(14)}
-      exiting={FadeOutUp.duration(200)}
+      layout={LinearTransition.springify().damping(14).mass(0.4)}
+      entering={FadeInUp.duration(200).delay(index * 50)}
+      exiting={FadeOut.duration(10)}
       className={"gap-5"}
     >
       <View className="flex-row items-center justify-between gap-4">

@@ -104,7 +104,8 @@ const TimerList = () => {
       <Animated.View
         entering={FadeInUp.duration(100).springify().damping(14)}
         exiting={FadeOut.duration(100)}
-        layout={LinearTransition.damping(14)}
+        layout={LinearTransition.springify().damping(14).mass(0.4)}
+
         className={` p-4 rounded-2xl border gap-5 ${isDark
           ? 'bg-slate-800 border-slate-700'
           : 'bg-white border-slate-200'
@@ -120,7 +121,11 @@ const TimerList = () => {
         </View>
 
         {isExpanded && (
-          <View className="mt-2 gap-5 px-1">
+          <Animated.View
+            entering={FadeInUp.duration(200).springify().damping(14)}
+            exiting={FadeOut.duration(200)}
+            className="mt-2 gap-5 px-1"
+          >
             {timers.map((timer, index) => (
               <TimerCard
                 key={timer.id}
@@ -131,7 +136,7 @@ const TimerList = () => {
                 progressPercentage={getProgressPercentage(timer)}
               />
             ))}
-          </View>
+          </Animated.View>
         )}
       </Animated.View>
     );
@@ -140,13 +145,7 @@ const TimerList = () => {
   return (
     <>
       <View>
-        {/* <View>
 
-          <FilterHeader
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
-        </View> */}
         <Animated.View
           entering={FadeIn.duration(300)}
           className="mb-4"
